@@ -1,0 +1,131 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+    provider = "prisma-client-js"
+    output   = "./generated/prisma"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+enum CapacityStatus {
+    EMPTY
+    MEDIUM
+    FULL
+}
+
+enum BloodType {
+    A_NEGATIVE
+    A_POSITIVE
+    B_NEGATIVE
+    B_POSITIVE
+    AB_NEGATIVE
+    AB_POSITIVE
+    O_NEGATIVE
+    O_POSITIVE
+}
+
+enum SizeCategory {
+    SMALL
+    MEDIUM
+    LARGE
+}
+
+enum ComplexityCategory {
+    PRIMARY
+    SECONDARY
+    TERTIARY
+}
+
+enum ServiceCategory {
+    GENERAL_HOSPITAL
+    TEACHING_HOSPITAL
+    COMMUNITY_HOSPITAL
+    PEDIATRIC_HOSPITAL
+    CARDIOLOGY_HOSPITAL
+    ONCOLOGY_HOSPITAL
+    MATERNITY_HOSPITAL
+    ORTHOPEDIC_HOSPITAL
+    PSYCHIATRIC_HOSPITAL
+    REHABILITATION_HOSPITAL
+    TRAUMA_CENTER
+    NEUROLOGY_HOSPITAL
+    INFECTIOUS_DISEASE_HOSPITAL
+}
+
+enum HospitalOwnership {
+    PUBLIC
+    PRIVATE
+    NON_PROFIT
+    MIXED
+}
+
+model Hospitals {
+    id                 String             @id @default(uuid(7))
+    name               String
+    description        String
+    capacityStatus     CapacityStatus     @map("capacity_status")
+    sizeCategory       SizeCategory       @map("size_category")
+    complexityCategory ComplexityCategory @map("complexity_category")
+    serviceCategory    ServiceCategory    @map("service_category")
+    hospitalOwnership  HospitalOwnership  @map("hospital_ownership")
+
+    @@index([name, capacityStatus])
+}
+
+model User {
+    id        String    @id @default(uuid(7))
+    name      String
+    bloodType BloodType @map("blood_type")
+
+    disease                   Disease[]                   @relation(name: "UserDesease")
+    allergies                 Allergies[]                 @relation(name: "UserAllergies")
+    medicament                Medicament[]                @relation(name: "UserMedicament")
+    personalEmergencyContacts PersonalEmergencyContacts[] @relation(name: "UserPersonalEmergencyContacts")
+
+    @@index([name])
+}
+
+model Disease {
+    id        String  @id @default(cuid())
+    name      String
+    isChronic Boolean @map("is_chronic")
+
+    user User[] @relation(name: "UserDesease")
+
+    @@index([name])
+}
+
+model Allergies {
+    id   String @id @default(cuid())
+    name String
+
+    user User[] @relation(name: "UserAllergies")
+}
+
+model Medicament {
+    id        String  @id @default(cuid())
+    name      String
+    isChronic Boolean @map("is_chronic")
+
+    user User[] @relation(name: "UserMedicament")
+
+    @@index([name])
+}
+
+model PersonalEmergencyContacts {
+    id     String @id @default(cuid())
+    name   String
+    tel    String
+    userId String
+
+    user User? @relation(name: "UserPersonalEmergencyContacts", fields: [userId], references: [id])
+
+    @@index([name, tel])
+}
