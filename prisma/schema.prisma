@@ -5,8 +5,8 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-    provider = "prisma-client-js"
-    output   = "./generated/prisma"
+    provider = "prisma-client"
+    output   = "../src/generated"
 }
 
 datasource db {
@@ -80,50 +80,63 @@ model Hospitals {
 }
 
 model User {
-    id        String    @id @default(uuid(7))
-    name      String
-    bloodType BloodType @map("blood_type")
+    id         String    @id @default(uuid(7))
+    firebaseId String?   @unique @db.VarChar(28)
+    name       String    @db.VarChar(100)
+    email      String    @unique @db.VarChar(50)
+    phone      String    @unique
+    bloodType  BloodType @map("blood_type")
+    createdAt  DateTime  @default(now()) @map("created_at")
+    updatedAt  DateTime  @updatedAt @map("updated_at")
 
-    disease                   Disease[]                   @relation(name: "UserDesease")
+    disease                   Disease[]                   @relation(name: "UserDisease")
     allergies                 Allergies[]                 @relation(name: "UserAllergies")
-    medicament                Medicament[]                @relation(name: "UserMedicament")
+    medication                Medication[]                @relation(name: "UserMedication")
     personalEmergencyContacts PersonalEmergencyContacts[] @relation(name: "UserPersonalEmergencyContacts")
 
     @@index([name])
 }
 
 model Disease {
-    id        String  @id @default(cuid())
+    id        String   @id @default(cuid())
     name      String
-    isChronic Boolean @map("is_chronic")
+    isChronic Boolean  @map("is_chronic")
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
 
-    user User[] @relation(name: "UserDesease")
+    user User[] @relation(name: "UserDisease")
 
     @@index([name])
 }
 
 model Allergies {
-    id   String @id @default(cuid())
-    name String
+    id          String   @id @default(cuid())
+    description String   @db.VarChar(300)
+    createdAt   DateTime @default(now()) @map("created_at")
+    updatedAt   DateTime @updatedAt @map("updated_at")
 
     user User[] @relation(name: "UserAllergies")
 }
 
-model Medicament {
-    id        String  @id @default(cuid())
-    name      String
-    isChronic Boolean @map("is_chronic")
+model Medication {
+    id              String   @id @default(cuid())
+    name            String   @db.VarChar(300)
+    isContinuousUse Boolean  @map("is_continuous_use")
+    createdAt       DateTime @default(now()) @map("created_at")
+    updatedAt       DateTime @updatedAt @map("updated_at")
 
-    user User[] @relation(name: "UserMedicament")
+    user User[] @relation(name: "UserMedication")
 
     @@index([name])
 }
 
 model PersonalEmergencyContacts {
-    id     String @id @default(cuid())
-    name   String
-    tel    String
-    userId String
+    id        String   @id @default(cuid())
+    name      String   @db.VarChar(50)
+    tel       String
+    userId    String?
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
 
     user User? @relation(name: "UserPersonalEmergencyContacts", fields: [userId], references: [id])
 
