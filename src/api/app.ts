@@ -1,31 +1,33 @@
+import type { FastifyInstance } from "fastify";
 import { prisma } from "../lib/prisma.js";
+import { firebase } from "../../firebaseConfig.js";
 import { logger } from "../logger.js";
 import { buildApp } from "./server.js";
 
 const HOST: string = process.env.HOST || "localhost";
 const PORT: number = Number(process.env.PORT) || 3000;
 
-const app = buildApp(prisma);
+const app: FastifyInstance = buildApp(prisma, firebase);
 
 try {
 
-  app.listen({
+    app.listen({
 
-    host: HOST,
-    port: PORT
+        host: HOST,
+        port: PORT
 
-  });
+    });
 
 } catch (error: unknown) {
 
-  if (app.log) {
+    if (app.log) {
 
-    app.log.error(error);
+        app.log.error(error);
 
-  };
+    };
 
-  logger.error(error);
+    logger.error(error);
 
-  process.exit(1);
+    process.exit(1);
 
 };

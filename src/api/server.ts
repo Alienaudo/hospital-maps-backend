@@ -1,12 +1,19 @@
-import { fastify, type FastifyError, type FastifyInstance, type FastifyReply, type FastifyRequest } from "fastify";
+import fastify, { type FastifyError, type FastifyInstance, type FastifyReply, type FastifyRequest } from "fastify";
 import type { ReplyGenericInterface } from "fastify/types/reply.js";
+import type { App } from "firebase-admin/app";
+import type { PrismaClient } from "../generated/client.js";
 import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import cookie from "@fastify/cookie";
 import rateLimit from "@fastify/rate-limit";
 import "dotenv/config";
-import type { PrismaClient } from "@prisma/client/extension";
+import { UserRoutePlugin } from "../routes/User.Routes.js";
 
-export const buildApp = (prismaClient: PrismaClient): FastifyInstance => {
+export const buildApp = (
+
+    prismaClient: PrismaClient,
+    firebaseInstance: App
+
+): FastifyInstance => {
 
     const app: FastifyInstance = fastify({
 
@@ -39,25 +46,38 @@ export const buildApp = (prismaClient: PrismaClient): FastifyInstance => {
 
         app.log.error(error);
 
-        return reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        return reply
+            .status(StatusCodes.INTERNAL_SERVER_ERROR)
+            .send({
 
-            error: ReasonPhrases.INTERNAL_SERVER_ERROR,
-            message: error.message
+                error: ReasonPhrases.INTERNAL_SERVER_ERROR,
+                message: error.message
 
-        });
+            });
 
     });
 
     app.register(cookie, {
 
         secret: process.env.JWT_SECRET || "MySecretForJWT",
-        hook: "preHandler"
+        hook: "preHandler",
 
     });
 
-    app.register(rateLimit);
+    app.register(rateLimit, {
+
+        global: false,
+
+    });
 
     app.decorate("prisma", prismaClient);
+    app.decorate("firebase", firebaseInstance);
+
+    app.register(UserRoutePlugin, {
+
+        prefix: "/v1/api/user",
+
+    });
 
     return app;
 
