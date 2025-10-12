@@ -11,12 +11,12 @@ const initializePrisma = async (retries: number = 0): Promise<PrismaClient> => {
 
     try {
 
-        const client = new PrismaClient();
+        const client: PrismaClient = new PrismaClient();
         await client.$connect();
 
         logger.info("Database connected!");
 
-        return prisma;
+        return client;
 
     } catch (error: unknown) {
 
@@ -28,7 +28,7 @@ const initializePrisma = async (retries: number = 0): Promise<PrismaClient> => {
 
                     if (retries < MAX_RETRIES) {
 
-                        const delay = RETRY_DELAY * Math.pow(2, retries);
+                        const delay: number = RETRY_DELAY * Math.pow(2, retries);
 
                         logger.warn(`Attempt ${++retries} has failed (P1001). Try again in ${delay}ms...`);
                         await new Promise(resolve => setTimeout(resolve, delay));
@@ -47,7 +47,7 @@ const initializePrisma = async (retries: number = 0): Promise<PrismaClient> => {
 
                     if (retries < MAX_RETRIES) {
 
-                        const delay = RETRY_DELAY * Math.pow(2, retries);
+                        const delay: number = RETRY_DELAY * Math.pow(2, retries);
 
                         logger.warn(`Attempt ${++retries} has failed (P1001). Try again in ${delay}ms...`);
                         await new Promise(resolve => setTimeout(resolve, delay));
