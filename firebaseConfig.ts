@@ -1,6 +1,6 @@
 import { type App, cert, initializeApp } from 'firebase-admin/app';
 
-const projectId = process.env.GCLOUD_PROJECT || "hosptal-map";
+const projectId: string = process.env.GCLOUD_PROJECT || "hosptal-map";
 
 export const firebase: App = initializeApp({
 
