@@ -1,12 +1,13 @@
-import fastify, { type FastifyError, type FastifyInstance, type FastifyReply, type FastifyRequest } from "fastify";
 import type { ReplyGenericInterface } from "fastify/types/reply.js";
 import type { App } from "firebase-admin/app";
 import type { PrismaClient } from "../generated/client.js";
+import fastify, { type FastifyError, type FastifyInstance, type FastifyReply, type FastifyRequest } from "fastify";
+import { TypeBoxValidatorCompiler, type TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 import { ReasonPhrases, StatusCodes } from "http-status-codes";
-import cookie from "@fastify/cookie";
-import rateLimit from "@fastify/rate-limit";
-import "dotenv/config";
 import { UserRoutePlugin } from "../routes/User.Routes.js";
+import rateLimit from "@fastify/rate-limit";
+import cookie from "@fastify/cookie";
+import "dotenv/config";
 
 export const buildApp = (
 
@@ -20,6 +21,7 @@ export const buildApp = (
         logger: {
 
             levelComparison: "DESC",
+            level: process.env.PINO_LOG_LEVEL || "debug",
             transport: {
 
                 target: "pino-pretty",
@@ -31,10 +33,13 @@ export const buildApp = (
 
                 },
 
-            }
-        }
+            },
 
-    });
+        },
+
+    })
+        .withTypeProvider<TypeBoxTypeProvider>()
+        .setValidatorCompiler(TypeBoxValidatorCompiler);
 
     app.setErrorHandler((
 
@@ -75,7 +80,7 @@ export const buildApp = (
 
     app.register(UserRoutePlugin, {
 
-        prefix: "/v1/api/user",
+        prefix: "/api/v1/user"
 
     });
 
