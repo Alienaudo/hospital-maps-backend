@@ -1,21 +1,20 @@
-import { Auth, FirebaseAuthError, getAuth, UserRecord } from "firebase-admin/auth";
+import { Auth, UserRecord } from "firebase-admin/auth";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { StatusCodes } from "http-status-codes";
 import { logger } from "../../logger.js";
-import type { App } from "firebase-admin/app";
 import type { UserInterface } from "../../interfaces/User.Interface.js";
 import type { FastifyReply, FastifyRequest } from "fastify";
-import type { PrismaClient } from "../../generated/client.js";
+import type { PrismaClient, User } from "../../generated/client.js";
 
 export class CreateUserService {
 
     private readonly prisma: PrismaClient;
-    private readonly firebase: App;
+    private readonly auth: Auth;
 
-    constructor(prisma: PrismaClient, firebase: App) {
+    constructor(prisma: PrismaClient, auth: Auth) {
 
         this.prisma = prisma;
-        this.firebase = firebase;
+        this.auth = auth;
 
     };
 
@@ -50,22 +49,47 @@ export class CreateUserService {
 
                         message: "Todos os campos obrigatórios devem ser preenchidos."
 
+                    })
+                    .headers({
+
+                        "Content-Type": "application/json;",
+
                     });
 
             };
 
-            const auth: Auth = getAuth(this.firebase);
-
-            const firebaseUser: UserRecord = await auth
+            const firebaseUser: UserRecord = await this.auth
                 .createUser({
 
                     email: email,
                     phoneNumber: phone,
                     password: password,
 
+                })
+                .catch(problem => {
+
+                    logger.error(`Error creating user: \n ${problem}`);
+
+                    return reply
+                        .status(StatusCodes.CONFLICT)
+                        .send({
+
+                            message: "Erro ao criar o usuário",
+                            problem: problem
+
+                        })
+                        .headers({
+
+                            "Content-Type": "application/json",
+
+                        });
+
                 });
 
-            const newUser = await this.prisma.user
+            const cookie: string = await this.auth
+                .createCustomToken(firebaseUser.uid);
+
+            const newUser: User = await this.prisma.user
                 .create({
 
                     data: {
@@ -104,6 +128,17 @@ export class CreateUserService {
 
                 });
 
+            reply
+                .setCookie("jwt", cookie, {
+
+                    path: "/",
+                    expires: new Date(Date.now() + 60 * 60 * 1000),
+                    secure: false,
+                    httpOnly: true,
+                    sameSite: "strict",
+
+                });
+
             return reply
                 .status(StatusCodes.CREATED)
                 .send({
@@ -116,23 +151,16 @@ export class CreateUserService {
                         emil: newUser.email,
                         phone: newUser.phone,
 
-                    }
+                    },
+
+                })
+                .headers({
+
+                    "Content-Type": "application/json; charset=utf-8",
 
                 });
 
         } catch (error: unknown) {
-
-            if (error instanceof FirebaseAuthError && error.code === "auth/email-already-exists") {
-
-                return reply
-                    .status(StatusCodes.CONFLICT)
-                    .send({
-
-                        message: "O email fornecido já está em uso."
-
-                    });
-
-            };
 
             if (error instanceof PrismaClientKnownRequestError && error.code === "P2002") {
 
@@ -142,19 +170,29 @@ export class CreateUserService {
                     .status(StatusCodes.CONFLICT)
                     .send({
 
-                        error: `Unique constraint failed on the fields: ${error.meta.target}`
+                        error: `A restrição exclusiva falhou nos campos: ${error.meta.target}`
+
+                    })
+                    .headers({
+
+                        "Content-Type": "application/json",
 
                     });
 
             };
 
-            logger.error(`Erro ao criar usuário: ${JSON.stringify(error)}`);
+            logger.error(`Error creating user: ${error}`);
 
             return reply
                 .status(StatusCodes.INTERNAL_SERVER_ERROR)
                 .send({
 
-                    message: "Ocorreu um erro ao processar a solicitação."
+                    message: "Ocorreu um erro ao processar a solicitação"
+
+                })
+                .headers({
+
+                    "Content-Type": "application/json",
 
                 });
 
