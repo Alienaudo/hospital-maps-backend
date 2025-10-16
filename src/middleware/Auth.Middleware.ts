@@ -1,7 +1,11 @@
-import { Auth, type DecodedIdToken, FirebaseAuthError } from "firebase-admin/auth";
+import type { FastifyRequest } from "fastify/types/request.js";
+import type { FastifyReply } from "fastify/types/reply.js";
+import type { DoneFuncWithErrOrRes } from "fastify";
+import { Auth, FirebaseAuthError } from "firebase-admin/auth";
 import { logger } from "../logger.js";
-import type { FastifyReply } from "fastify";
 import { StatusCodes } from "http-status-codes";
+
+const projectId: string = process.env.GCLOUD_PROJECT || "hosptal-map";
 
 export class VerifyToken {
 
@@ -13,14 +17,84 @@ export class VerifyToken {
 
     };
 
-    public verifyToken = async (idToken: string, reply: FastifyReply): Promise<string> => {
+    public verifyToken = async (
+
+        request: FastifyRequest,
+        reply: FastifyReply,
+        done: DoneFuncWithErrOrRes
+
+    ): Promise<FastifyReply | void> => {
 
         try {
 
-            const decodedToken: DecodedIdToken = await this.firebaseAuth
-                .verifyIdToken(idToken);
+            if (!request.headers.authorization) {
 
-            return decodedToken.uid;
+                logger.error("Unauthorized - No Token Provided");
+
+                return reply
+                    .status(StatusCodes.UNAUTHORIZED)
+                    .send({
+
+                        message: "Token não informado"
+
+                    })
+                    .headers({
+
+                        "Content-Type": "application/json",
+
+                    });
+
+            };
+
+            const idToken: string = request.headers.authorization;
+
+            logger.info(idToken);
+
+            await this.firebaseAuth
+                .verifyIdToken(idToken, true)
+                .then(decodedToken => {
+
+                    if (decodedToken.aud !== projectId) {
+
+                        return reply
+                            .status(StatusCodes.UNAUTHORIZED)
+                            .send({
+
+                                message: "Token inválido para esta aplicação"
+
+                            })
+                            .headers({
+
+                                "Content-Type": "application/json",
+
+                            });
+
+                    };
+
+                    request.userFirebase = decodedToken;
+
+                })
+                .catch(reson => {
+
+                    logger.error(`Error in Auth middleware: ${reson}`);
+
+                    return reply
+                        .status(StatusCodes.UNAUTHORIZED)
+                        .send({
+
+                            message: "Promise não foi resolvida",
+                            reson: reson
+
+                        })
+                        .headers({
+
+                            "Content-Type": "application/json",
+
+                        });
+
+                });
+
+            return done();
 
         } catch (error: unknown) {
 
@@ -28,13 +102,33 @@ export class VerifyToken {
 
                 switch (error.code) {
 
+                    case "auth/argument-error":
+
+                        return reply
+                            .status(StatusCodes.UNAUTHORIZED)
+                            .send({
+
+                                message: "Erro ao decodificar o token",
+
+                            })
+                            .headers({
+
+                                "Content-Type": "application/json",
+
+                            });
+
                     case "auth/id-token-expired":
 
                         return reply
                             .status(StatusCodes.UNAUTHORIZED)
                             .send({
 
-                                message: "O token informado expirou."
+                                message: "O token informado expirou",
+
+                            })
+                            .headers({
+
+                                "Content-Type": "application/json",
 
                             });
 
@@ -44,7 +138,12 @@ export class VerifyToken {
                             .status(StatusCodes.UNAUTHORIZED)
                             .send({
 
-                                message: "O token informado perdeu a validade."
+                                message: "O token informado perdeu a validade",
+
+                            })
+                            .headers({
+
+                                "Content-Type": "application/json",
 
                             });
 
@@ -53,7 +152,19 @@ export class VerifyToken {
             };
 
             logger.error(`Error in Auth middleware: ${error}`);
-            throw new Error("Error in Auth middleware")
+
+            return reply
+                .status(StatusCodes.UNAUTHORIZED)
+                .send({
+
+                    message: "Erro no middleware de autenticação",
+
+                })
+                .headers({
+
+                    "Content-Type": "application/json",
+
+                });
 
         };
 
