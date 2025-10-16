@@ -1,18 +1,19 @@
-import { CreateUserService } from "../services/User/CreateUser.Service.js";
 import type { FastifyReply, FastifyRequest } from "fastify";
 import type { UserInterface } from "../interfaces/User.Interface.js";
-import type { App } from "firebase-admin/app";
-import type { PrismaClient } from "../generated/client.js";
+import type { BloodType, PrismaClient } from "../generated/client.js";
+import type { Auth } from "firebase-admin/auth";
+import { CreateUserService } from "../services/User/CreateUser.Service.js";
+import { UpdateBloodType } from "../services/User/UpdateBloodType.Service.js";
 
 export class UserController {
 
     private readonly prisma: PrismaClient;
-    private readonly firebase: App;
+    private readonly auth: Auth;
 
-    constructor(prisma: PrismaClient, firebase: App) {
+    constructor(prisma: PrismaClient, auth: Auth) {
 
         this.prisma = prisma;
-        this.firebase = firebase;
+        this.auth = auth;
 
     };
 
@@ -23,12 +24,10 @@ export class UserController {
 
     ): Promise<void> => {
 
-        const createUserService: CreateUserService = new CreateUserService(this.prisma, this.firebase);
+        const createUserService: CreateUserService = new CreateUserService(this.prisma, this.auth);
         await createUserService.exec(request, reply);
 
     };
-
-    public addUserBloodType = async (request: FastifyRequest, reply: FastifyReply) => { };
 
     public addUserDisease = async (request: FastifyRequest, reply: FastifyReply) => { };
 
@@ -56,7 +55,26 @@ export class UserController {
 
     public updateUserName = async (request: FastifyRequest, reply: FastifyReply) => { };
 
-    public updateUserBloodType = async (request: FastifyRequest, reply: FastifyReply) => { };
+    public updateUserBloodType = async (
+
+        request: FastifyRequest<{
+
+            Body: {
+
+                id: string,
+                bloodType: BloodType,
+
+            };
+
+        }>,
+        reply: FastifyReply
+
+    ): Promise<void> => {
+
+        const updateBloodType: UpdateBloodType = new UpdateBloodType(this.prisma);
+        await updateBloodType.exec(request, reply);
+
+    };
 
     public updateUserDisease = async (request: FastifyRequest, reply: FastifyReply) => { };
 

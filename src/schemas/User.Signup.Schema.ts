@@ -1,6 +1,6 @@
-import { Type, type Static } from "@sinclair/typebox";
+import Type, { type Static } from "typebox";
 
-const BloodTypeEnum = Type.Union([
+export const BloodTypeEnum = Type.Union([
 
     Type.Literal("A_NEGATIVE"),
     Type.Literal("A_POSITIVE"),
@@ -13,22 +13,40 @@ const BloodTypeEnum = Type.Union([
 
 ]);
 
+
+const NameRegex: RegExp = /^[a-zA-ZÀ-ÿ0-9 ]*$/;
+
 const DiseaseSchema = Type.Object({
 
-    name: Type.String({ maxLength: 50, pattern: "^[a-zA-Z0-9]*$" }),
+    name: Type.String({
+
+        maxLength: 50,
+        pattern: NameRegex
+
+    }),
     isChronic: Type.Boolean(),
 
 });
 
 const AllergiesSchema = Type.Object({
 
-    description: Type.String({ maxLength: 300, pattern: "^[a-zA-Z0-9 ]*$" }),
+    description: Type.String({
+
+        maxLength: 300,
+        pattern: NameRegex
+
+    }),
 
 });
 
 const MedicationSchema = Type.Object({
 
-    name: Type.String({ maxLength: 100, pattern: "^[a-zA-Z0-9 ]*$" }),
+    name: Type.String({
+
+        maxLength: 100,
+        pattern: NameRegex
+
+    }),
     isContinuousUse: Type.Boolean(),
 
 });
@@ -37,14 +55,24 @@ const PhoneRegex = "^\\+?\\d{1,4}?[-.\\s]?\\(?\\d{1,3}?\\)?[-.\\s]?\\d{1,4}[-.\\
 
 const EmergencyContactSchema = Type.Object({
 
-    name: Type.String({ maxLength: 50, pattern: "^[a-zA-Z0-9 ]*$" }),
+    name: Type.String({
+
+        maxLength: 50,
+        pattern: NameRegex
+
+    }),
     tel: Type.String({ pattern: PhoneRegex }),
 
 });
 
 export const UserSignupSchema = Type.Object({
 
-    name: Type.String({ maxLength: 100, pattern: "^[a-zA-Z0-9]*$" }),
+    name: Type.String({
+
+        maxLength: 100,
+        pattern: NameRegex
+
+    }),
     email: Type.String({ format: "email" }),
     password: Type.String({ minLength: 6 }),
     phone: Type.String({ pattern: PhoneRegex }),
