@@ -1,11 +1,11 @@
 import type { PrismaClient } from "@prisma/client/extension";
 import type { App } from "firebase-admin/app";
 import type { FastifyPluginAsync, RawServerDefault, FastifyInstance } from "fastify";
+import { BloodTypeSchema, type BloodSchemaType } from "../schemas/BloodType.Schema.js";
 import { UserController } from "../controller/User.Controller.js";
 import { UserSignupSchema } from "../schemas/User.Signup.Schema.js";
 import { VerifyToken } from "../middleware/Auth.Middleware.js";
 import { Auth, getAuth } from "firebase-admin/auth";
-import { BloodTypeSchema, type BloodSchemaType } from "../schemas/BloodType.Schema.js";
 
 class UserRoutes {
 
@@ -27,26 +27,41 @@ class UserRoutes {
 
     public userRoutes = async (fastify: FastifyInstance): Promise<void> => {
 
-        fastify.post("/signup", {
-
-            schema: {
-
-                body: UserSignupSchema
-
-            },
+        fastify.head("/exists/:firebaseUid", {
 
             config: {
 
                 rateLimit: {
 
-                    max: 3,
+                    max: 15,
                     timeWindow: "10 minute",
 
                 },
 
             },
 
-        }, this.userController.creatUser);
+        }, this.userController.existsUser),
+
+            fastify.post("/signup", {
+
+                schema: {
+
+                    body: UserSignupSchema,
+
+                },
+
+                config: {
+
+                    rateLimit: {
+
+                        max: 3,
+                        timeWindow: "10 minute",
+
+                    },
+
+                },
+
+            }, this.userController.creatUser);
 
         fastify.patch<{
 

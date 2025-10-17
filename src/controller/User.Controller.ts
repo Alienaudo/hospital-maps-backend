@@ -4,6 +4,7 @@ import type { BloodType, PrismaClient } from "../generated/client.js";
 import type { Auth } from "firebase-admin/auth";
 import { CreateUserService } from "../services/User/CreateUser.Service.js";
 import { UpdateBloodType } from "../services/User/UpdateBloodType.Service.js";
+import { ExistsUserService } from "../services/User/ExistsUser.Service.js";
 
 export class UserController {
 
@@ -14,6 +15,26 @@ export class UserController {
 
         this.prisma = prisma;
         this.auth = auth;
+
+    };
+
+    public existsUser = async (
+
+        request: FastifyRequest<{
+
+            Params: {
+
+                firebaseUid: string,
+
+            },
+
+        }>,
+        reply: FastifyReply
+
+    ): Promise<void> => {
+
+        const existsUser: ExistsUserService = new ExistsUserService(this.prisma, this.auth);
+        await existsUser.exec(request, reply);
 
     };
 
@@ -36,8 +57,6 @@ export class UserController {
     public addUserMedicament = async (request: FastifyRequest, reply: FastifyReply) => { };
 
     public addUserPersonalEmergencyContacts = async (request: FastifyRequest, reply: FastifyReply) => { };
-
-    public getUser = async (request: FastifyRequest, reply: FastifyReply) => { };
 
     public getUserName = async (request: FastifyRequest, reply: FastifyReply) => { };
 
