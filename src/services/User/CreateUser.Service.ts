@@ -1,10 +1,10 @@
+import type { UserInterface } from "../../interfaces/User.Interface.js";
+import type { FastifyReply, FastifyRequest } from "fastify";
+import type { PrismaClient, User } from "../../generated/client.js";
 import { Auth, UserRecord } from "firebase-admin/auth";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { StatusCodes } from "http-status-codes";
 import { logger } from "../../logger.js";
-import type { UserInterface } from "../../interfaces/User.Interface.js";
-import type { FastifyReply, FastifyRequest } from "fastify";
-import type { PrismaClient, User } from "../../generated/client.js";
 
 export class CreateUserService {
 
@@ -45,14 +45,14 @@ export class CreateUserService {
 
                 return reply
                     .status(StatusCodes.BAD_REQUEST)
-                    .send({
-
-                        message: "Todos os campos obrigatórios devem ser preenchidos."
-
-                    })
                     .headers({
 
                         "Content-Type": "application/json;",
+
+                    })
+                    .send({
+
+                        message: "Todos os campos obrigatórios devem ser preenchidos."
 
                     });
 
@@ -72,15 +72,15 @@ export class CreateUserService {
 
                     return reply
                         .status(StatusCodes.CONFLICT)
+                        .headers({
+
+                            "Content-Type": "application/json",
+
+                        })
                         .send({
 
                             message: "Erro ao criar o usuário",
                             problem: problem
-
-                        })
-                        .headers({
-
-                            "Content-Type": "application/json",
 
                         });
 
@@ -141,6 +141,11 @@ export class CreateUserService {
 
             return reply
                 .status(StatusCodes.CREATED)
+                .headers({
+
+                    "Content-Type": "application/json; charset=utf-8",
+
+                })
                 .send({
 
                     message: "Usuário criado com êxito",
@@ -153,11 +158,6 @@ export class CreateUserService {
 
                     },
 
-                })
-                .headers({
-
-                    "Content-Type": "application/json; charset=utf-8",
-
                 });
 
         } catch (error: unknown) {
@@ -168,14 +168,14 @@ export class CreateUserService {
 
                 return reply
                     .status(StatusCodes.CONFLICT)
-                    .send({
-
-                        error: `A restrição exclusiva falhou nos campos: ${error.meta.target}`
-
-                    })
                     .headers({
 
                         "Content-Type": "application/json",
+
+                    })
+                    .send({
+
+                        error: `A restrição exclusiva falhou nos campos: ${error.meta.target}`
 
                     });
 
@@ -185,14 +185,14 @@ export class CreateUserService {
 
             return reply
                 .status(StatusCodes.INTERNAL_SERVER_ERROR)
-                .send({
-
-                    message: "Ocorreu um erro ao processar a solicitação"
-
-                })
                 .headers({
 
                     "Content-Type": "application/json",
+
+                })
+                .send({
+
+                    message: "Ocorreu um erro ao processar a solicitação"
 
                 });
 
