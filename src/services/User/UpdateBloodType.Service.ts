@@ -56,16 +56,16 @@ export class UpdateBloodType {
 
             return reply
                 .status(StatusCodes.OK)
-                .send({
-
-                    message: "Tipo sanguineo atualizado com êxito",
-                    booldType: newBloodType.bloodType,
-
-                })
                 .headers({
 
                     "Content-Type": "application/json",
                     "last-modified": `${newBloodType.updatedAt}`
+
+                })
+                .send({
+
+                    message: "Tipo sanguineo atualizado com êxito",
+                    booldType: newBloodType.bloodType,
 
                 });
 
@@ -75,14 +75,14 @@ export class UpdateBloodType {
 
             return reply
                 .status(StatusCodes.INTERNAL_SERVER_ERROR)
-                .send({
-
-                    message: "Ocorreu um erro ao processar a solicitação"
-
-                })
                 .headers({
 
                     "Content-Type": "application/json",
+
+                })
+                .send({
+
+                    message: "Ocorreu um erro ao processar a solicitação"
 
                 });
 
