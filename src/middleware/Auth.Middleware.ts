@@ -48,8 +48,6 @@ export class VerifyToken {
 
             const idToken: string = request.headers.authorization;
 
-            logger.info(idToken);
-
             await this.firebaseAuth
                 .verifyIdToken(idToken, true)
                 .then(decodedToken => {
