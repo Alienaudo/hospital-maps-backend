@@ -5,6 +5,9 @@ import type { Auth } from "firebase-admin/auth";
 import { CreateUserService } from "../services/User/CreateUser.Service.js";
 import { UpdateBloodType } from "../services/User/UpdateBloodType.Service.js";
 import { ExistsUserService } from "../services/User/ExistsUser.Service.js";
+import { AddDiseasesService } from "../services/Diseases/AddDiseases.Service.js";
+import { GetDiseasesService } from "../services/Diseases/GetDiseases.Service.js";
+import { DeleteDisease } from "../services/Diseases/DeleteDisease.Service.js";
 
 export class UserController {
 
@@ -22,11 +25,7 @@ export class UserController {
 
         request: FastifyRequest<{
 
-            Params: {
-
-                firebaseUid: string,
-
-            },
+            Params: { uid: string },
 
         }>,
         reply: FastifyReply
@@ -50,7 +49,30 @@ export class UserController {
 
     };
 
-    public addUserDisease = async (request: FastifyRequest, reply: FastifyReply) => { };
+    public addUserDisease = async (
+
+        request: FastifyRequest<{
+
+            Body: {
+
+                disease: {
+
+                    name: string
+                    isChronic: boolean
+
+                }[];
+
+            },
+
+        }>,
+        reply: FastifyReply
+
+    ): Promise<void> => {
+
+        const addDisease: AddDiseasesService = new AddDiseasesService(this.prisma);
+        await addDisease.exec(request, reply);
+
+    };
 
     public addUserAllergies = async (request: FastifyRequest, reply: FastifyReply) => { };
 
@@ -62,7 +84,17 @@ export class UserController {
 
     public getUserBloodType = async (request: FastifyRequest, reply: FastifyReply) => { };
 
-    public getUserDisease = async (request: FastifyRequest, reply: FastifyReply) => { };
+    public getUserDisease = async (
+
+        request: FastifyRequest,
+        reply: FastifyReply
+
+    ): Promise<void> => {
+
+        const getDisease: GetDiseasesService = new GetDiseasesService(this.prisma);
+        await getDisease.exec(request, reply);
+
+    };
 
     public getUserAllergies = async (request: FastifyRequest, reply: FastifyReply) => { };
 
@@ -95,13 +127,27 @@ export class UserController {
 
     };
 
-    public updateUserDisease = async (request: FastifyRequest, reply: FastifyReply) => { };
-
     public updateUserAllergies = async (request: FastifyRequest, reply: FastifyReply) => { };
 
     public updateUserMedicament = async (request: FastifyRequest, reply: FastifyReply) => { };
 
     public updateUserPersonalEmergencyContacts = async (request: FastifyRequest, reply: FastifyReply) => { };
+
+    public deleteUserDisease = async (
+
+        request: FastifyRequest<{
+
+            Params: { diseaseId: string };
+
+        }>,
+        reply: FastifyReply
+
+    ): Promise<void> => {
+
+        const deleteDisease: DeleteDisease = new DeleteDisease(this.prisma);
+        await deleteDisease.exec(request, reply);
+
+    };
 
     public deleteUser = async (request: FastifyRequest, reply: FastifyReply) => { };
 

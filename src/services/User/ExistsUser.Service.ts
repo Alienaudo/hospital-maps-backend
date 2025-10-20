@@ -22,11 +22,7 @@ export class ExistsUserService {
 
         request: FastifyRequest<{
 
-            Params: {
-
-                firebaseUid: string,
-
-            },
+            Params: { uid: string },
 
         }>,
         reply: FastifyReply
@@ -35,38 +31,28 @@ export class ExistsUserService {
 
         try {
 
-            const { firebaseUid } = request.params;
+            const { uid } = request.params;
 
-            if (!firebaseUid) {
+            if (!uid) {
 
                 return reply
                     .status(StatusCodes.BAD_REQUEST)
-                    .headers({
-
-                        "Content-Type": "application/json;",
-
-                    })
                     .send({
 
-                        error: "Attribute 'firebaseUid' must be informed",
+                        error: "Attribute 'uid' must be informed",
 
                     });
 
             };
 
             const firebaseUser: UserRecord = await this.auth
-                .getUser(firebaseUid)
+                .getUser(uid)
                 .catch(problem => {
 
                     logger.error(`Firebase lookup error: ${problem}`);
 
                     return reply
                         .status(StatusCodes.NOT_FOUND)
-                        .headers({
-
-                            "Content-Type": "application/json",
-
-                        })
                         .send({
 
                             message: "Usuário não encontrado no Firebase",
@@ -78,11 +64,7 @@ export class ExistsUserService {
             const existInDB = await this.prisma.user
                 .findUniqueOrThrow({
 
-                    where: {
-
-                        firebaseId: firebaseUser.uid,
-
-                    },
+                    where: { firebaseId: firebaseUser.uid },
                     select: { updatedAt: true },
 
                 });
@@ -91,13 +73,12 @@ export class ExistsUserService {
                 .status(StatusCodes.OK)
                 .headers({
 
-                    "Content-Type": "application/json",
+                    "last-modified": existInDB.updatedAt.toISOString(),
 
                 })
                 .send({
 
                     message: "Usuário encontrado",
-                    updatedAt: existInDB.updatedAt,
 
                 });
 
@@ -107,11 +88,6 @@ export class ExistsUserService {
 
                 return reply
                     .status(StatusCodes.CONFLICT)
-                    .headers({
-
-                        "Content-Type": "application/json",
-
-                    })
                     .send({
 
                         error: "Usuário não encontrado",
@@ -124,11 +100,6 @@ export class ExistsUserService {
 
             return reply
                 .status(StatusCodes.INTERNAL_SERVER_ERROR)
-                .headers({
-
-                    "Content-Type": "application/json",
-
-                })
                 .send({
 
                     message: "Ocorreu um erro ao processar a solicitação",

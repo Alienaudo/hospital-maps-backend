@@ -1,11 +1,13 @@
 import type { PrismaClient } from "@prisma/client/extension";
 import type { App } from "firebase-admin/app";
 import type { FastifyPluginAsync, RawServerDefault, FastifyInstance } from "fastify";
+import type { AddDiseasesRoute } from "../types/AddDiseasesRoute.Type.js";
 import { BloodTypeSchema, type BloodSchemaType } from "../schemas/BloodType.Schema.js";
 import { UserController } from "../controller/User.Controller.js";
 import { UserSignupSchema } from "../schemas/User.Signup.Schema.js";
 import { VerifyToken } from "../middleware/Auth.Middleware.js";
 import { Auth, getAuth } from "firebase-admin/auth";
+import Type from "typebox";
 
 class UserRoutes {
 
@@ -27,7 +29,7 @@ class UserRoutes {
 
     public userRoutes = async (fastify: FastifyInstance): Promise<void> => {
 
-        fastify.head("/exists/:firebaseUid", {
+        fastify.head("/exists/:uid", {
 
             config: {
 
@@ -44,11 +46,7 @@ class UserRoutes {
 
             fastify.post("/signup", {
 
-                schema: {
-
-                    body: UserSignupSchema,
-
-                },
+                schema: { body: UserSignupSchema },
 
                 config: {
 
@@ -63,17 +61,59 @@ class UserRoutes {
 
             }, this.userController.creatUser);
 
-        fastify.patch<{
+        fastify.patch<{ Body: BloodSchemaType }>("/bloodType", {
 
-            Body: BloodSchemaType
+            preHandler: this.verifyToken.verifyToken,
 
-        }>("/bloodType", {
+            schema: { body: BloodTypeSchema },
+
+            config: {
+
+                rateLimit: {
+
+                    max: 5,
+                    timeWindow: "30 minute",
+
+                },
+
+            },
+
+        }, this.userController.updateUserBloodType);
+
+        fastify.get("/diseases", {
+
+            preHandler: this.verifyToken.verifyToken,
+
+            config: {
+
+                rateLimit: {
+
+                    max: 50,
+                    timeWindow: "30 minute",
+
+                },
+
+            },
+
+        }, this.userController.getUserDisease);
+
+        fastify.patch<AddDiseasesRoute>("/diseases", {
 
             preHandler: this.verifyToken.verifyToken,
 
             schema: {
 
-                body: BloodTypeSchema,
+                body: {
+
+                    name: Type.String({
+
+                        maxLength: 50,
+                        pattern: /^[a-zA-ZÀ-ÿ0-9 ]*$/,
+
+                    }),
+                    isChronic: Type.Boolean(),
+
+                },
 
             },
 
@@ -88,7 +128,34 @@ class UserRoutes {
 
             },
 
-        }, this.userController.updateUserBloodType);
+        }, this.userController.addUserDisease);
+
+        fastify.delete<{
+
+            Params: { diseaseId: string }
+
+        }>("/diseases/:diseaseId", {
+
+            preHandler: this.verifyToken.verifyToken,
+
+            schema: {
+
+                params: { diseaseId: Type.String() },
+
+            },
+
+            config: {
+
+                rateLimit: {
+
+                    max: 50,
+                    timeWindow: "30 minute",
+
+                },
+
+            },
+
+        }, this.userController.deleteUserDisease);
 
     };
 

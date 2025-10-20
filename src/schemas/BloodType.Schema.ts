@@ -3,7 +3,7 @@ import { BloodTypeEnum } from "./User.Signup.Schema.js";
 
 export const BloodTypeSchema = Type.Object({
 
-    id: Type.String(),
+    id: Type.String({ format: "uuid" }),
     bloodType: BloodTypeEnum,
 
 });
