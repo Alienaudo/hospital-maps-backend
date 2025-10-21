@@ -1,11 +1,11 @@
-import type { PrismaClient } from "../../generated/client.js";
 import type { FastifyRequest } from "fastify/types/request.js";
+import type { PrismaClient } from "../../generated/client.js";
 import type { FastifyReply } from "fastify/types/reply.js";
 import { StatusCodes } from "http-status-codes";
-import { logger } from "../../logger.js";
 import { PrismaClientKnownRequestError } from "../../generated/internal/prismaNamespace.js";
+import { logger } from "../../logger.js";
 
-export class GetDiseasesService {
+export class GetMedicationService {
 
     private readonly prisma: PrismaClient;
 
@@ -28,7 +28,7 @@ export class GetDiseasesService {
 
             if (!uid) throw Error("Auth Middleware not privided user's uid");
 
-            const result = await this.prisma.disease
+            const result = await this.prisma.medication
                 .findMany({
 
                     where: {
@@ -45,7 +45,7 @@ export class GetDiseasesService {
 
                         id: true,
                         name: true,
-                        isChronic: true
+                        isContinuousUse: true,
 
                     },
 
@@ -77,7 +77,7 @@ export class GetDiseasesService {
 
             };
 
-            logger.error(`Erro while getting user's diseases: ${error}`);
+            logger.error(`Erro while getting user's medication: ${error}`);
 
             return reply
                 .status(StatusCodes.INTERNAL_SERVER_ERROR)

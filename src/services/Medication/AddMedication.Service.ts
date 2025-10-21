@@ -1,11 +1,11 @@
-import type { PrismaClient } from "../../generated/client.js";
 import type { FastifyRequest } from "fastify/types/request.js";
+import type { PrismaClient } from "../../generated/client.js";
 import type { FastifyReply } from "fastify/types/reply.js";
 import { StatusCodes } from "http-status-codes";
-import { logger } from "../../logger.js";
 import { PrismaClientKnownRequestError } from "../../generated/internal/prismaNamespace.js";
+import { logger } from "../../logger.js";
 
-export class AddDiseasesService {
+export class AddMedication {
 
     private readonly prisma: PrismaClient;
 
@@ -21,10 +21,10 @@ export class AddDiseasesService {
 
             Body: {
 
-                disease: {
+                medication: {
 
                     name: string
-                    isChronic: boolean
+                    isContinuousUse: boolean
 
                 }[];
 
@@ -38,7 +38,7 @@ export class AddDiseasesService {
         try {
 
             const uid: string | undefined = request.userFirebase?.uid;
-            const { disease } = request.body;
+            const { medication } = request.body;
 
             if (!uid) throw Error("Auth Middleware not privided user's uid");
 
@@ -46,13 +46,11 @@ export class AddDiseasesService {
                 .update({
 
                     where: { firebaseId: uid },
-
                     data: {
 
-                        disease: { create: disease },
+                        medication: { create: medication },
 
                     },
-
                     select: { updatedAt: true },
 
                 });
@@ -85,7 +83,7 @@ export class AddDiseasesService {
 
             };
 
-            logger.error(`Erro while updating blood type: ${error}`);
+            logger.error(`Erro while adding medication: ${error}`);
 
             return reply
                 .status(StatusCodes.INTERNAL_SERVER_ERROR)
@@ -100,4 +98,3 @@ export class AddDiseasesService {
     };
 
 };
-
