@@ -28,7 +28,7 @@ export class GetDiseasesService {
 
             if (!uid) throw Error("Auth Middleware not privided user's uid");
 
-            const disease = await this.prisma.disease
+            const result = await this.prisma.disease
                 .findMany({
 
                     where: {
@@ -58,8 +58,8 @@ export class GetDiseasesService {
                 .send({
 
                     message: "Items encontrados",
-                    disease: disease,
-                    count: disease.length,
+                    disease: result,
+                    count: result.length,
 
                 });
 

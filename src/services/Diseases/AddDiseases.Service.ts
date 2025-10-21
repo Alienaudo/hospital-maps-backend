@@ -42,7 +42,7 @@ export class AddDiseasesService {
 
             if (!uid) throw Error("Auth Middleware not privided user's uid");
 
-            const updated = await this.prisma.user
+            const result = await this.prisma.user
                 .update({
 
                     where: { firebaseId: uid },
@@ -62,7 +62,7 @@ export class AddDiseasesService {
                 .headers({
 
                     "Content-Type": "application/json;",
-                    "last-modified": `${updated.updatedAt.toISOString()}`,
+                    "last-modified": `${result.updatedAt.toISOString()}`,
 
                 })
                 .send({
