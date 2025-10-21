@@ -157,6 +157,96 @@ class UserRoutes {
 
         }, this.userController.deleteUserDisease);
 
+        fastify.get("/medication", {
+
+            preHandler: this.verifyToken.verifyToken,
+
+            config: {
+
+                rateLimit: {
+
+                    max: 50,
+                    timeWindow: "30 minute",
+
+                },
+
+            },
+
+        }, this.userController.getUserMedication);
+
+        fastify.patch<{
+
+            Body: {
+
+                medication: {
+
+                    name: string
+                    isContinuousUse: boolean
+
+                }[];
+
+            },
+
+        }>("/medication", {
+
+            preHandler: this.verifyToken.verifyToken,
+
+            schema: {
+
+                body: {
+
+                    name: Type.String({
+
+                        maxLength: 50,
+                        pattern: /^[a-zA-ZÀ-ÿ0-9 ]*$/,
+
+                    }),
+                    isContinuousUse: Type.Boolean(),
+
+                },
+
+            },
+
+            config: {
+
+                rateLimit: {
+
+                    max: 5,
+                    timeWindow: "30 minute",
+
+                },
+
+            },
+
+        }, this.userController.addUserMedication);
+
+        fastify.delete<{
+
+            Params: { medicationId: string }
+
+        }>("/medication/:medicationId", {
+
+            preHandler: this.verifyToken.verifyToken,
+
+            schema: {
+
+                params: { medicationId: Type.String() },
+
+            },
+
+            config: {
+
+                rateLimit: {
+
+                    max: 50,
+                    timeWindow: "30 minute",
+
+                },
+
+            },
+
+        }, this.userController.deleteUserMedication);
+
     };
 
 };
