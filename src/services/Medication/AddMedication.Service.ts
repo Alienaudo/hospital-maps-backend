@@ -71,13 +71,15 @@ export class AddMedication {
 
         } catch (error: unknown) {
 
-            if (error instanceof PrismaClientKnownRequestError && error.code === "P2025") {
+            if (error instanceof PrismaClientKnownRequestError && error.code === "P2002") {
+
+                if (!error.meta) throw error
 
                 return reply
-                    .status(StatusCodes.NOT_FOUND)
+                    .status(StatusCodes.CONFLICT)
                     .send({
 
-                        error: "Usuário não encontrado",
+                        error: `A restrição exclusiva falhou nos campos: ${error.meta.target}`
 
                     });
 

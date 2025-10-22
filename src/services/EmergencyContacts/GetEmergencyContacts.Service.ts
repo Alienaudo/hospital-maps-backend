@@ -5,7 +5,7 @@ import { StatusCodes } from "http-status-codes";
 import { PrismaClientKnownRequestError } from "../../generated/internal/prismaNamespace.js";
 import { logger } from "../../logger.js";
 
-export class GetMedicationService {
+export class GetEmergencyContacts {
 
     private readonly prisma: PrismaClient;
 
@@ -28,16 +28,12 @@ export class GetMedicationService {
 
             if (!uid) throw Error("Auth Middleware not privided user's uid");
 
-            const result = await this.prisma.medication
+            const result = await this.prisma.personalEmergencyContacts
                 .findMany({
 
                     where: {
 
-                        user: {
-
-                            some: { firebaseId: uid },
-
-                        },
+                        user: { firebaseId: uid },
 
                     },
 
@@ -45,7 +41,7 @@ export class GetMedicationService {
 
                         id: true,
                         name: true,
-                        isContinuousUse: true,
+                        tel: true,
 
                     },
 
@@ -59,7 +55,7 @@ export class GetMedicationService {
 
                     message: "Items encontrados",
                     count: result.length,
-                    Medicaments: result,
+                    contacts: result,
 
                 });
 
@@ -77,7 +73,7 @@ export class GetMedicationService {
 
             };
 
-            logger.error(`Erro while getting user's medication: ${error}`);
+            logger.error(`Erro while getting user's emergency contact: ${error}`);
 
             return reply
                 .status(StatusCodes.INTERNAL_SERVER_ERROR)

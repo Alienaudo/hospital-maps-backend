@@ -5,7 +5,7 @@ import type { BatchPayload } from "../../generated/internal/prismaNamespace.js";
 import { StatusCodes } from "http-status-codes";
 import { logger } from "../../logger.js";
 
-export class DeleteDisease {
+export class DeleteEmergencyContactService {
 
     private readonly prisma: PrismaClient;
 
@@ -19,7 +19,7 @@ export class DeleteDisease {
 
         request: FastifyRequest<{
 
-            Params: { diseaseId: string };
+            Params: { contactId: string };
 
         }>,
         reply: FastifyReply
@@ -29,26 +29,17 @@ export class DeleteDisease {
         try {
 
             const uid: string | undefined = request.userFirebase?.uid;
-            const { diseaseId } = request.params;
+            const { contactId } = request.params;
 
             if (!uid) throw Error("Auth Middleware not privided user's uid");
 
-            const result: BatchPayload = await this.prisma.disease
+            const result: BatchPayload = await this.prisma.personalEmergencyContacts
                 .deleteMany({
 
                     where: {
 
-                        id: diseaseId,
-
-                        user: {
-
-                            some: {
-
-                                firebaseId: uid
-
-                            },
-
-                        },
+                        id: contactId,
+                        user: { firebaseId: uid },
 
                     },
 
@@ -71,7 +62,7 @@ export class DeleteDisease {
 
         } catch (error: unknown) {
 
-            logger.error(`Error deleting disease: ${error}`);
+            logger.error(`Error deleting emergency contact: ${error}`);
 
             return reply
                 .status(StatusCodes.INTERNAL_SERVER_ERROR)

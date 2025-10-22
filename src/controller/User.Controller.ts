@@ -11,6 +11,9 @@ import { DeleteDisease } from "../services/Diseases/DeleteDisease.Service.js";
 import { AddMedication } from "../services/Medication/AddMedication.Service.js";
 import { GetMedicationService } from "../services/Medication/GetMedication.Service.js";
 import { DeleteMedicationService } from "../services/Medication/DeleteMedication.Service.js";
+import { AddEmergencyContactsService } from "../services/EmergencyContacts/AddEmergencyContacts.Service.js";
+import { GetEmergencyContacts } from "../services/EmergencyContacts/GetEmergencyContacts.Service.js";
+import { DeleteEmergencyContactService } from "../services/EmergencyContacts/DeleteEmergencyContacts.Service.js";
 
 export class UserController {
 
@@ -104,7 +107,30 @@ export class UserController {
 
     };
 
-    public addUserPersonalEmergencyContacts = async (request: FastifyRequest, reply: FastifyReply) => { };
+    public addUserEmergencyContacts = async (
+
+        request: FastifyRequest<{
+
+            Body: {
+
+                emergencyContacts: {
+
+                    name: string,
+                    tel: string,
+
+                }[];
+
+            },
+
+        }>,
+        reply: FastifyReply
+
+    ): Promise<void> => {
+
+        const addEmergencyContacts: AddEmergencyContactsService = new AddEmergencyContactsService(this.prisma);
+        await addEmergencyContacts.exec(request, reply);
+
+    };
 
     public getUserName = async (request: FastifyRequest, reply: FastifyReply) => { };
 
@@ -131,7 +157,12 @@ export class UserController {
 
     };
 
-    public getUserPersonalEmergencyContacts = async (request: FastifyRequest, reply: FastifyReply) => { };
+    public getUserEmergencyContacts = async (request: FastifyRequest, reply: FastifyReply) => {
+
+        const getEmergencyContacts: GetEmergencyContacts = new GetEmergencyContacts(this.prisma);
+        await getEmergencyContacts.exec(request, reply);
+
+    };
 
     public updateUser = async (request: FastifyRequest, reply: FastifyReply) => { };
 
@@ -193,6 +224,22 @@ export class UserController {
 
         const deleteDisease: DeleteMedicationService = new DeleteMedicationService(this.prisma);
         await deleteDisease.exec(request, reply);
+
+    };
+
+    public deleteUserEmergencyContact = async (
+
+        request: FastifyRequest<{
+
+            Params: { contactId: string };
+
+        }>,
+        reply: FastifyReply
+
+    ): Promise<void> => {
+
+        const deleteEmergencyContact: DeleteEmergencyContactService = new DeleteEmergencyContactService(this.prisma);
+        await deleteEmergencyContact.exec(request, reply);
 
     };
 

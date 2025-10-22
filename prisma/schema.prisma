@@ -133,7 +133,7 @@ model Medication {
 model PersonalEmergencyContacts {
     id        String   @id @default(cuid())
     name      String   @db.VarChar(50)
-    tel       String
+    tel       String   @unique
     userId    String?
     createdAt DateTime @default(now()) @map("created_at")
     updatedAt DateTime @updatedAt @map("updated_at")

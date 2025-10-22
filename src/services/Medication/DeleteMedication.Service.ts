@@ -1,9 +1,9 @@
 import type { PrismaClient } from "../../generated/client.js";
 import type { FastifyRequest } from "fastify/types/request.js";
 import type { FastifyReply } from "fastify/types/reply.js";
+import type { BatchPayload } from "../../generated/internal/prismaNamespace.js";
 import { StatusCodes } from "http-status-codes";
 import { logger } from "../../logger.js";
-import type { BatchPayload } from "../../generated/internal/prismaNamespace.js";
 
 export class DeleteMedicationService {
 
