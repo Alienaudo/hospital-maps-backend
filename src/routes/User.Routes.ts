@@ -1,13 +1,13 @@
 import type { PrismaClient } from "@prisma/client/extension";
+import type { FastifyInstance, FastifyPluginAsync, RawServerDefault } from "fastify";
 import type { App } from "firebase-admin/app";
-import type { FastifyPluginAsync, RawServerDefault, FastifyInstance } from "fastify";
-import type { AddDiseasesRoute } from "../types/AddDiseasesRoute.Type.js";
-import { BloodTypeSchema, type BloodSchemaType } from "../schemas/BloodType.Schema.js";
-import { UserController } from "../controller/User.Controller.js";
-import { UserSignupSchema } from "../schemas/User.Signup.Schema.js";
-import { VerifyToken } from "../middleware/Auth.Middleware.js";
 import { Auth, getAuth } from "firebase-admin/auth";
 import Type from "typebox";
+import { UserController } from "../controller/User.Controller.js";
+import { VerifyToken } from "../middleware/Auth.Middleware.js";
+import { BloodTypeSchema, type BloodSchemaType } from "../schemas/BloodType.Schema.js";
+import { PhoneRegex, UserSignupSchema } from "../schemas/User.Signup.Schema.js";
+import type { AddDiseasesRoute } from "../types/AddDiseasesRoute.Type.js";
 
 class UserRoutes {
 
@@ -246,6 +246,96 @@ class UserRoutes {
             },
 
         }, this.userController.deleteUserMedication);
+
+        fastify.get("/emergencyContact", {
+
+            preHandler: this.verifyToken.verifyToken,
+
+            config: {
+
+                rateLimit: {
+
+                    max: 50,
+                    timeWindow: "30 minute",
+
+                },
+
+            },
+
+        }, this.userController.getUserEmergencyContacts);
+
+        fastify.patch<{
+
+            Body: {
+
+                emergencyContacts: {
+
+                    name: string,
+                    tel: string,
+
+                }[];
+
+            },
+
+        }>("/emergencyContact", {
+
+            preHandler: this.verifyToken.verifyToken,
+
+            schema: {
+
+                body: {
+
+                    name: Type.String({
+
+                        maxLength: 50,
+                        pattern: /^[a-zA-ZÀ-ÿ0-9 ]*$/,
+
+                    }),
+                    tel: Type.String({ pattern: PhoneRegex }),
+
+                },
+
+            },
+
+            config: {
+
+                rateLimit: {
+
+                    max: 5,
+                    timeWindow: "30 minute",
+
+                },
+
+            },
+
+        }, this.userController.addUserEmergencyContacts);
+
+        fastify.delete<{
+
+            Params: { contactId: string };
+
+        }>("/emergencyContact/:contactId", {
+
+            preHandler: this.verifyToken.verifyToken,
+
+            schema: {
+
+                params: { contactId: Type.String() },
+
+            },
+
+            config: {
+
+                rateLimit: {
+
+                    max: 50,
+                    timeWindow: "30 minute",
+
+                },
+
+            },
+
+        }, this.userController.deleteUserEmergencyContact);
 
     };
 
