@@ -58,8 +58,8 @@ export class GetMedicationService {
                 .send({
 
                     message: "Items encontrados",
-                    disease: result,
                     count: result.length,
+                    Medicaments: result,
 
                 });
 
