@@ -157,6 +157,94 @@ class UserRoutes {
 
         }, this.userController.deleteUserDisease);
 
+        fastify.get("/allergies", {
+
+            preHandler: this.verifyToken.verifyToken,
+
+            config: {
+
+                rateLimit: {
+
+                    max: 50,
+                    timeWindow: "30 minute",
+
+                },
+
+            },
+
+        }, this.userController.getUserAllergies);
+
+        fastify.patch<{
+
+            Body: {
+
+                allergies: {
+
+                    description: string
+
+                }[];
+
+            },
+
+        }>("/allergies", {
+
+            preHandler: this.verifyToken.verifyToken,
+
+            schema: {
+
+                body: {
+
+                    description: Type.String({
+
+                        maxLength: 300,
+                        pattern: /^[a-zA-ZÀ-ÿ0-9 ]*$/,
+
+                    }),
+
+                },
+
+            },
+
+            config: {
+
+                rateLimit: {
+
+                    max: 5,
+                    timeWindow: "30 minute",
+
+                },
+
+            },
+
+        }, this.userController.addUserAllergies);
+
+        fastify.delete<{
+
+            Params: { allergieId: string }
+
+        }>("/allergies/:allergieId", {
+
+            preHandler: this.verifyToken.verifyToken,
+
+            schema: {
+
+                params: { allergieId: Type.String() },
+
+            },
+
+            config: {
+
+                rateLimit: {
+
+                    max: 50,
+                    timeWindow: "30 minute",
+
+                },
+
+            },
+
+        }, this.userController.deleteUserAllergie);
+
         fastify.get("/medication", {
 
             preHandler: this.verifyToken.verifyToken,

@@ -14,6 +14,9 @@ import { DeleteMedicationService } from "../services/Medication/DeleteMedication
 import { AddEmergencyContactsService } from "../services/EmergencyContacts/AddEmergencyContacts.Service.js";
 import { GetEmergencyContacts } from "../services/EmergencyContacts/GetEmergencyContacts.Service.js";
 import { DeleteEmergencyContactService } from "../services/EmergencyContacts/DeleteEmergencyContacts.Service.js";
+import { GetAllergiesService } from "../services/Allergies/GetAllergies.Service.js";
+import { AddAllergiesService } from "../services/Allergies/AddAllergies.Service.js";
+import { DeleteAllergieService } from "../services/Allergies/DeleteAllergies.Service.js";
 
 export class UserController {
 
@@ -80,7 +83,29 @@ export class UserController {
 
     };
 
-    public addUserAllergies = async (request: FastifyRequest, reply: FastifyReply) => { };
+    public addUserAllergies = async (
+
+        request: FastifyRequest<{
+
+            Body: {
+
+                allergies: {
+
+                    description: string
+
+                }[];
+
+            },
+
+        }>,
+        reply: FastifyReply
+
+    ): Promise<void> => {
+
+        const addAllergies: AddAllergiesService = new AddAllergiesService(this.prisma);
+        await addAllergies.exec(request, reply);
+
+    };
 
     public addUserMedication = async (
 
@@ -148,16 +173,36 @@ export class UserController {
 
     };
 
-    public getUserAllergies = async (request: FastifyRequest, reply: FastifyReply) => { };
+    public getUserAllergies = async (
 
-    public getUserMedication = async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
+        request: FastifyRequest,
+        reply: FastifyReply
+
+    ): Promise<void> => {
+
+        const getAllergies: GetAllergiesService = new GetAllergiesService(this.prisma);
+        await getAllergies.exec(request, reply);
+
+    };
+
+    public getUserMedication = async (
+
+        request: FastifyRequest,
+        reply: FastifyReply
+
+    ): Promise<void> => {
 
         const getMedication: GetMedicationService = new GetMedicationService(this.prisma);
         await getMedication.exec(request, reply);
 
     };
 
-    public getUserEmergencyContacts = async (request: FastifyRequest, reply: FastifyReply) => {
+    public getUserEmergencyContacts = async (
+
+        request: FastifyRequest,
+        reply: FastifyReply
+
+    ): Promise<void> => {
 
         const getEmergencyContacts: GetEmergencyContacts = new GetEmergencyContacts(this.prisma);
         await getEmergencyContacts.exec(request, reply);
@@ -189,12 +234,6 @@ export class UserController {
 
     };
 
-    public updateUserAllergies = async (request: FastifyRequest, reply: FastifyReply) => { };
-
-    public updateUserMedicament = async (request: FastifyRequest, reply: FastifyReply) => { };
-
-    public updateUserPersonalEmergencyContacts = async (request: FastifyRequest, reply: FastifyReply) => { };
-
     public deleteUserDisease = async (
 
         request: FastifyRequest<{
@@ -209,7 +248,23 @@ export class UserController {
         const deleteDisease: DeleteDisease = new DeleteDisease(this.prisma);
         await deleteDisease.exec(request, reply);
 
-    }
+    };
+
+    public deleteUserAllergie = async (
+
+        request: FastifyRequest<{
+
+            Params: { allergieId: string };
+
+        }>,
+        reply: FastifyReply
+
+    ): Promise<void> => {
+
+        const deleteAllergie: DeleteAllergieService = new DeleteAllergieService(this.prisma);
+        await deleteAllergie.exec(request, reply);
+
+    };
 
     public deleteUserMedication = async (
 
