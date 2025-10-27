@@ -17,6 +17,7 @@ import { DeleteEmergencyContactService } from "../services/EmergencyContacts/Del
 import { GetAllergiesService } from "../services/Allergies/GetAllergies.Service.js";
 import { AddAllergiesService } from "../services/Allergies/AddAllergies.Service.js";
 import { DeleteAllergieService } from "../services/Allergies/DeleteAllergies.Service.js";
+import { logger } from "../logger.js";
 
 export class UserController {
 
@@ -53,6 +54,7 @@ export class UserController {
 
     ): Promise<void> => {
 
+        logger.info(request.body)
         const createUserService: CreateUserService = new CreateUserService(this.prisma, this.auth);
         await createUserService.exec(request, reply);
 
