@@ -42,11 +42,7 @@ export class DeleteAllergieService {
 
                         user: {
 
-                            some: {
-
-                                firebaseId: uid
-
-                            },
+                            some: { firebaseId: uid },
 
                         },
 

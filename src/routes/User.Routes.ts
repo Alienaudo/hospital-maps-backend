@@ -52,7 +52,7 @@ class UserRoutes {
 
                     rateLimit: {
 
-                        max: 3,
+                        max: 5,
                         timeWindow: "10 minute",
 
                     },
