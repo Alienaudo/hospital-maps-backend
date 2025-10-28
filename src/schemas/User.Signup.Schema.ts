@@ -51,7 +51,7 @@ const MedicationSchema = Type.Object({
 
 });
 
-export const PhoneRegex = "^\\+?\\d{1,4}?[-.\\s]?\\(?\\d{1,3}?\\)?[-.\\s]?\\d{1,4}[-.\\s]?\\d{1,4}[-.\\s]?\\d{1,9}$";
+export const PhoneRegex = /^\+[1-9]\d{1,14}$/;
 
 const EmergencyContactSchema = Type.Object({
 
