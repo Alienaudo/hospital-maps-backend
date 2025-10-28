@@ -1,13 +1,13 @@
 import type { PrismaClient } from "@prisma/client/extension";
 import type { FastifyInstance, FastifyPluginAsync, RawServerDefault } from "fastify";
 import type { App } from "firebase-admin/app";
+import type { AddDiseasesRoute } from "../types/AddDiseasesRoute.Type.js";
+import { BloodTypeSchema, type BloodSchemaType } from "../schemas/BloodType.Schema.js";
 import { Auth, getAuth } from "firebase-admin/auth";
-import Type from "typebox";
 import { UserController } from "../controller/User.Controller.js";
 import { VerifyToken } from "../middleware/Auth.Middleware.js";
-import { BloodTypeSchema, type BloodSchemaType } from "../schemas/BloodType.Schema.js";
 import { PhoneRegex, UserSignupSchema } from "../schemas/User.Signup.Schema.js";
-import type { AddDiseasesRoute } from "../types/AddDiseasesRoute.Type.js";
+import Type from "typebox";
 
 class UserRoutes {
 
@@ -60,6 +60,146 @@ class UserRoutes {
                 },
 
             }, this.userController.creatUser);
+
+        fastify.get("/bloodType", {
+
+            preHandler: this.verifyToken.verifyToken,
+
+            config: {
+
+                rateLimit: {
+
+                    max: 50,
+                    timeWindow: "30 minute",
+
+                },
+
+            },
+
+        }, this.userController.getUserBloodType);
+
+        fastify.get("/email", {
+
+            preHandler: this.verifyToken.verifyToken,
+
+            config: {
+
+                rateLimit: {
+
+                    max: 50,
+                    timeWindow: "30 minute",
+
+                },
+
+            },
+
+        }, this.userController.getUserEmail);
+
+        fastify.get("/phone", {
+
+            preHandler: this.verifyToken.verifyToken,
+
+            config: {
+
+                rateLimit: {
+
+                    max: 50,
+                    timeWindow: "30 minute",
+
+                },
+
+            },
+
+        }, this.userController.getUserPhone);
+
+        fastify.patch<{
+
+            Body: { newName: string },
+
+        }>("/name", {
+
+            preHandler: this.verifyToken.verifyToken,
+
+            schema: {
+
+                body: { newName: Type.String() },
+
+            },
+
+            config: {
+
+                rateLimit: {
+
+                    max: 5,
+                    timeWindow: "30 minute",
+
+                },
+
+            },
+
+        }, this.userController.updateUserName);
+
+        fastify.patch<{
+
+            Body: { newEmail: string },
+
+        }>("/email", {
+
+            preHandler: this.verifyToken.verifyToken,
+
+            schema: {
+
+                body: {
+
+                    newEmail: Type.String({ format: "email" }),
+
+                },
+
+            },
+
+            config: {
+
+                rateLimit: {
+
+                    max: 5,
+                    timeWindow: "30 minute",
+
+                },
+
+            },
+
+        }, this.userController.updateUserEmail);
+
+        fastify.patch<{
+
+            Body: { newPhone: string },
+
+        }>("/phone", {
+
+            preHandler: this.verifyToken.verifyToken,
+
+            schema: {
+
+                body: {
+
+                    newPhone: Type.String({ pattern: PhoneRegex }),
+
+                },
+
+            },
+
+            config: {
+
+                rateLimit: {
+
+                    max: 5,
+                    timeWindow: "30 minute",
+
+                },
+
+            },
+
+        }, this.userController.updateUserPhone);
 
         fastify.patch<{ Body: BloodSchemaType }>("/bloodType", {
 
