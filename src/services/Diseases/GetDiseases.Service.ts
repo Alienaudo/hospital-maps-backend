@@ -2,8 +2,8 @@ import type { PrismaClient } from "../../generated/client.js";
 import type { FastifyRequest } from "fastify/types/request.js";
 import type { FastifyReply } from "fastify/types/reply.js";
 import { StatusCodes } from "http-status-codes";
-import { logger } from "../../logger.js";
 import { PrismaClientKnownRequestError } from "../../generated/internal/prismaNamespace.js";
+import { logger } from "../../logger.js";
 
 export class GetDiseasesService {
 
@@ -52,6 +52,18 @@ export class GetDiseasesService {
                     orderBy: { createdAt: "desc" },
 
                 });
+
+            if (!result) {
+
+                return reply
+                    .status(StatusCodes.NOT_FOUND)
+                    .send({
+
+                        error: "Item não foi encontrado",
+
+                    });
+
+            };
 
             return reply
                 .status(StatusCodes.OK)

@@ -49,6 +49,18 @@ export class GetEmergencyContacts {
 
                 });
 
+            if (!result) {
+
+                return reply
+                    .status(StatusCodes.NOT_FOUND)
+                    .send({
+
+                        error: "Item não foi encontrado",
+
+                    });
+
+            };
+
             return reply
                 .status(StatusCodes.OK)
                 .send({

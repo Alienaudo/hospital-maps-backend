@@ -2,8 +2,8 @@ import type { PrismaClient } from "../../generated/client.js";
 import type { FastifyRequest } from "fastify/types/request.js";
 import type { FastifyReply } from "fastify/types/reply.js";
 import { StatusCodes } from "http-status-codes";
-import { logger } from "../../logger.js";
 import { PrismaClientKnownRequestError } from "../../generated/internal/prismaNamespace.js";
+import { logger } from "../../logger.js";
 
 export class AddDiseasesService {
 

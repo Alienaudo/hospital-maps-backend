@@ -42,11 +42,7 @@ export class DeleteDisease {
 
                         user: {
 
-                            some: {
-
-                                firebaseId: uid
-
-                            },
+                            some: { firebaseId: uid },
 
                         },
 
