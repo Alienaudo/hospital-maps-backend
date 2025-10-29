@@ -42,11 +42,7 @@ export class DeleteMedicationService {
 
                         user: {
 
-                            some: {
-
-                                firebaseId: uid
-
-                            },
+                            some: { firebaseId: uid },
 
                         },
 
