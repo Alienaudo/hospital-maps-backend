@@ -3,7 +3,6 @@ import type { UserInterface } from "../interfaces/User.Interface.js";
 import type { BloodType, PrismaClient } from "../generated/client.js";
 import type { Auth } from "firebase-admin/auth";
 import { CreateUserService } from "../services/User/CreateUser.Service.js";
-import { UpdateBloodType } from "../services/User/UpdateBloodType.Service.js";
 import { ExistsUserService } from "../services/User/ExistsUser.Service.js";
 import { AddDiseasesService } from "../services/Diseases/AddDiseases.Service.js";
 import { GetDiseasesService } from "../services/Diseases/GetDiseases.Service.js";
@@ -17,7 +16,14 @@ import { DeleteEmergencyContactService } from "../services/EmergencyContacts/Del
 import { GetAllergiesService } from "../services/Allergies/GetAllergies.Service.js";
 import { AddAllergiesService } from "../services/Allergies/AddAllergies.Service.js";
 import { DeleteAllergieService } from "../services/Allergies/DeleteAllergies.Service.js";
+import { GetBloodTypeService } from "../services/User/GetBloodType.Service.js";
 import { logger } from "../logger.js";
+import { GetEmailService } from "../services/User/GetEmail.Service.js";
+import { GetPhoneService } from "../services/User/GetPhone.Service.js";
+import { UpdateEmailService } from "../services/User/UpdateEmail.Service.js";
+import { UpdateBloodTypeService } from "../services/User/UpdateBloodType.Service.js";
+import { UpdateNameService } from "../services/User/UpdateName.Service.js";
+import { UpdatePhoneService } from "../services/User/UpdatePhone.Service.js";
 
 export class UserController {
 
@@ -159,9 +165,41 @@ export class UserController {
 
     };
 
-    public getUserName = async (request: FastifyRequest, reply: FastifyReply) => { };
+    public getUserBloodType = async (
 
-    public getUserBloodType = async (request: FastifyRequest, reply: FastifyReply) => { };
+        request: FastifyRequest,
+        reply: FastifyReply
+
+    ): Promise<void> => {
+
+        const getBloodType: GetBloodTypeService = new GetBloodTypeService(this.prisma);
+        await getBloodType.exec(request, reply);
+
+    };
+
+    public getUserEmail = async (
+
+        request: FastifyRequest,
+        reply: FastifyReply
+
+    ): Promise<void> => {
+
+        const getEmail: GetEmailService = new GetEmailService(this.prisma);
+        await getEmail.exec(request, reply);
+
+    };
+
+    public getUserPhone = async (
+
+        request: FastifyRequest,
+        reply: FastifyReply
+
+    ): Promise<void> => {
+
+        const getPhone: GetPhoneService = new GetPhoneService(this.prisma);
+        await getPhone.exec(request, reply);
+
+    };
 
     public getUserDisease = async (
 
@@ -211,9 +249,53 @@ export class UserController {
 
     };
 
-    public updateUser = async (request: FastifyRequest, reply: FastifyReply) => { };
+    public updateUserName = async (
 
-    public updateUserName = async (request: FastifyRequest, reply: FastifyReply) => { };
+        request: FastifyRequest<{
+
+            Body: { newName: string },
+
+        }>,
+        reply: FastifyReply
+
+    ): Promise<void> => {
+
+        const updateName: UpdateNameService = new UpdateNameService(this.prisma);
+        await updateName.exec(request, reply);
+
+    };
+
+    public updateUserEmail = async (
+
+        request: FastifyRequest<{
+
+            Body: { newEmail: string },
+
+        }>,
+        reply: FastifyReply
+
+    ): Promise<void> => {
+
+        const updateEmail: UpdateEmailService = new UpdateEmailService(this.prisma);
+        await updateEmail.exec(request, reply);
+
+    };
+
+    public updateUserPhone = async (
+
+        request: FastifyRequest<{
+
+            Body: { newPhone: string },
+
+        }>,
+        reply: FastifyReply
+
+    ): Promise<void> => {
+
+        const updatePhone: UpdatePhoneService = new UpdatePhoneService(this.prisma);
+        await updatePhone.exec(request, reply);
+
+    };
 
     public updateUserBloodType = async (
 
@@ -221,8 +303,7 @@ export class UserController {
 
             Body: {
 
-                id: string,
-                bloodType: BloodType,
+                newBloodType: BloodType,
 
             };
 
@@ -231,7 +312,7 @@ export class UserController {
 
     ): Promise<void> => {
 
-        const updateBloodType: UpdateBloodType = new UpdateBloodType(this.prisma);
+        const updateBloodType: UpdateBloodTypeService = new UpdateBloodTypeService(this.prisma);
         await updateBloodType.exec(request, reply);
 
     };

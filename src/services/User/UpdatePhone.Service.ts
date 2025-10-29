@@ -1,10 +1,10 @@
-import type { BloodType, PrismaClient } from "../../generated/client.js";
+import type { PrismaClient } from "../../generated/client.js";
 import type { FastifyRequest } from "fastify/types/request.js";
 import type { FastifyReply } from "fastify/types/reply.js";
 import { StatusCodes } from "http-status-codes";
 import { logger } from "../../logger.js";
 
-export class UpdateBloodTypeService {
+export class UpdatePhoneService {
 
     private readonly prisma: PrismaClient;
 
@@ -18,7 +18,7 @@ export class UpdateBloodTypeService {
 
         request: FastifyRequest<{
 
-            Body: { newBloodType: BloodType },
+            Body: { newPhone: string },
 
         }>,
         reply: FastifyReply
@@ -28,7 +28,7 @@ export class UpdateBloodTypeService {
         try {
 
             const uid: string | undefined = request.userFirebase?.uid;
-            const { newBloodType } = request.body
+            const { newPhone } = request.body
 
             if (!uid) throw Error("Auth Middleware not privided user's uid");
 
@@ -36,7 +36,7 @@ export class UpdateBloodTypeService {
                 .update({
 
                     where: { firebaseId: uid },
-                    data: { bloodType: newBloodType },
+                    data: { phone: newPhone },
                     select: { updatedAt: true },
 
                 });
@@ -50,13 +50,13 @@ export class UpdateBloodTypeService {
                 })
                 .send({
 
-                    message: "Tipo sanguineo atualizado com êxito",
+                    message: "Numero de celular do usuário atualizado com êxito",
 
                 });
 
         } catch (error: unknown) {
 
-            logger.error(`Erro while updating blood type: ${error}`);
+            logger.error(`Erro while updating phone: ${error}`);
 
             return reply
                 .status(StatusCodes.INTERNAL_SERVER_ERROR)
