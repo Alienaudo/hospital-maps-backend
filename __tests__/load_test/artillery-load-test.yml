@@ -1,0 +1,143 @@
+config:
+    target: "http://127.0.0.1:3000/api/v1/user"
+    phases:
+        - duration: 120
+          arrivalRate: 5
+          name: "Warmup - Baseline"
+
+        - duration: 180
+          arrivalRate: 5
+          rampTo: 30
+          name: "Stress Ramp"
+
+        - duration: 60
+          arrivalRate: 30
+          name: "Peak load"
+
+    defaults:
+        headers:
+            Accept: "application/json"
+    payload:
+        path: "./fake_users.csv"
+        fields:
+            - "name"
+            - "email"
+            - "password"
+            - "phone"
+            - "bloodType"
+            - "disease"
+            - "allergies"
+            - "medication"
+            - "personalEmergencyContacts"
+        order: random
+    processor: "./processor.mjs"
+
+scenarios:
+    - flow:
+          - function: "parsePayload"
+          - post:
+                url: "/signup"
+                json:
+                    email: "{{ email }}"
+                    password: "{{ password }}"
+                    phone: "{{ phone }}"
+                    name: "{{ name }}"
+                    bloodType: "{{ bloodType }}"
+                    diseases: "{{ disease }}"
+                    allergies: "{{ allergies }}"
+                    medication: "{{ medication }}"
+                    personalEmergencyContacts: "{{ personalEmergencyContacts }}"
+                capture:
+                    - header: "Set-Cookie"
+                      as: "customToken"
+
+          - post:
+                url: "http://localhost:9099/identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=${IDENTITY_TOOLKIT_API_KEY}" # Substitua [SUA_API_KEY]
+                json:
+                    token: "{{ customToken }}"
+                    returnSecureToken: true
+                capture:
+                    - json: "$.idToken"
+                      as: "idToken"
+
+          - get:
+                url: "/diseases"
+          - get:
+                url: "/allergies"
+          - get:
+                url: "/medication"
+          - get:
+                url: "/emergencyContact"
+          - think: 2
+
+          - patch:
+                url: "/diseases"
+                headers:
+                    Authorization: "Bearer {{ idToken }}"
+                json:
+                    name: "Dengue"
+                    isChronic: true
+
+          - patch:
+                url: "/diseases"
+                headers:
+                    Authorization: "Bearer {{ idToken }}"
+                json:
+                    name: "Hipertensão"
+                    isChronic: true
+
+          - patch:
+                url: "/allergies"
+                headers:
+                    Authorization: "Bearer {{ idToken }}"
+                json:
+                    description: "Alergia a penicilina"
+
+          - patch:
+                url: "/allergies"
+                headers:
+                    Authorization: "Bearer {{ idToken }}"
+                json:
+                    description: "Alergia a amendoim"
+
+          - patch:
+                url: "/medication"
+                headers:
+                    Authorization: "Bearer {{ idToken }}"
+                json:
+                    name: "Metformina"
+                    isContinuousUse: true
+
+          - patch:
+                url: "/medication"
+                headers:
+                    Authorization: "Bearer {{ idToken }}"
+                json:
+                    name: "Losartana"
+                    isContinuousUse: true
+
+          - patch:
+                url: "/emergencyContact"
+                headers:
+                    Authorization: "Bearer {{ idToken }}"
+                json:
+                    name: "Maria Silva"
+                    tel: "+55 11 83835-8962"
+
+          - patch:
+                url: "/emergencyContact"
+                headers:
+                    Authorization: "Bearer {{ idToken }}"
+                json:
+                    name: "Pedro Silva"
+                    tel: "+55 11 27177-7677"
+
+          - get:
+                url: "/diseases"
+          - get:
+                url: "/allergies"
+          - get:
+                url: "/medication"
+          - get:
+                url: "/emergencyContact"
+          - think: 5

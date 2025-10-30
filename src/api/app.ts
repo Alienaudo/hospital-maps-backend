@@ -3,6 +3,7 @@ import { prisma } from "../lib/prisma.js";
 import { firebase } from "../../firebaseConfig.js";
 import { logger } from "../logger.js";
 import { buildApp } from "./server.js";
+import "newrelic";
 
 const HOST: string = process.env.HOST || "localhost";
 const PORT: number = Number(process.env.PORT) || 3000;

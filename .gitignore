@@ -2,6 +2,7 @@ node_modules
 # Keep environment variables out of version control
 .env
 *.log
+*.csv
 
 /dist
 
@@ -10,5 +11,6 @@ node_modules
 /src/firebase/*
 
 firebase.json
+report.json
 
 .firebaserc
