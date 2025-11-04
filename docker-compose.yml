@@ -19,7 +19,18 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-      start_period: 10s 
+      start_period: 10s
+
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    depends_on:
+      hospitalDB:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - hospital-network
 
 volumes:
   postgres_data:

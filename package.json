@@ -7,9 +7,9 @@
     "build:dev": "pnpm prisma generate && pnpm tsc --watch",
     "build": "pnpm prisma generate && pnpm tsc",
     "test:load": "pnpm artillery run __tests__/load_test/artillery-load-test.yml --output report.json",
-    "start:api": "node --experimental-loader=newrelic/esm-loader.mjs ./dist/src/api/app.js",
+    "start:api": "node --import 'data:text/javascript,import { register } from \"node:module\"; import { pathToFileURL } from \"node:url\"; register(\"newrelic/esm-loader.mjs\", pathToFileURL(\"./\"));' ./dist/src/api/app.js",
     "start": "pnpm start:api",
-    "start:dev": "nodemon --experimental-loader=newrelic/esm-loader.mjs ./dist/src/api/app.js"
+    "start:dev": "nodemon --import 'data:text/javascript,import { register } from \"node:module\"; import { pathToFileURL } from \"node:url\"; register(\"newrelic/esm-loader.mjs\", pathToFileURL(\"./\"));' ./dist/src/api/app.js"
   },
   "keywords": [],
   "author": "",
