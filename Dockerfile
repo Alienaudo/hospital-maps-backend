@@ -43,8 +43,6 @@ COPY --from=build --chown=nodeuser:nodejs /app/firebase /app/firebase
 
 COPY --chown=nodeuser:nodejs pnpm-lock.yaml package.json .env ./
 
-RUN chown -R nodeuser:nodejs /app
-
 EXPOSE 3000
 
 USER nodeuser
