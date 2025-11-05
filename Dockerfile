@@ -6,7 +6,7 @@ RUN corepack enable
 
 WORKDIR /app
 
-COPY pnpm-lock.yaml package.json ./
+COPY  pnpm-lock.yaml package.json ./
 
 RUN --mount=type=cache,target=/pnpm/store \
     pnpm fetch --frozen-lockfile && \
@@ -36,6 +36,8 @@ RUN corepack enable \
 
 WORKDIR /app
 
+RUN chown -R nodeuser:nodejs /app
+
 COPY --from=deps --chown=nodeuser:nodejs /app/node_modules /app/node_modules
 COPY --from=build --chown=nodeuser:nodejs /app/dist /app/dist
 COPY --from=build --chown=nodeuser:nodejs /app/prisma /app/prisma
@@ -43,7 +45,9 @@ COPY --from=build --chown=nodeuser:nodejs /app/firebase /app/firebase
 
 COPY --chown=nodeuser:nodejs pnpm-lock.yaml package.json .env ./
 
-EXPOSE 3000
+RUN pnpm prisma generate
+
+EXPOSE ${PORT}
 
 USER nodeuser
 
