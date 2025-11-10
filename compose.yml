@@ -1,41 +1,41 @@
 services:
-  hospitalDB:
-    image: postgres:18.0-alpine
-    container_name: hospitalDB
-    environment:
-      POSTGRES_HOST: ${HOST_DB}
-      POSTGRES_PORT: ${PORT_DB}
-      POSTGRES_DB: ${NAME_DB}
-      POSTGRES_USER: ${USER_DB}
-      POSTGRES_PASSWORD: ${PASSWORD_DB}
-    volumes:
-      - postgres_data:/var/lib/postgis/data
-    ports:
-      - "5432:5432"
-    networks:
-      - hospital-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${USER_DB} -d ${NAME_DB}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
+    hospitalDB:
+        image: postgres:18.0-alpine
+        container_name: hospitalDB
+        environment:
+            POSTGRES_HOST: ${HOST_DB}
+            POSTGRES_PORT: ${PORT_DB}
+            POSTGRES_DB: ${NAME_DB}
+            POSTGRES_USER: ${USER_DB}
+            POSTGRES_PASSWORD: ${PASSWORD_DB}
+        volumes:
+            - postgres_data:/var/lib/postgis/data
+        ports:
+            - "5432:5432"
+        networks:
+            - hospital-network
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U ${USER_DB} -d ${NAME_DB}"]
+            interval: 5s
+            timeout: 5s
+            retries: 5
+            start_period: 10s
 
-  app:
-    build: .
-    ports:
-      - "3001:3001"
-    depends_on:
-      hospitalDB:
-        condition: service_healthy
-    restart: unless-stopped
-    networks:
-      - hospital-network
+    app:
+        build: .
+        ports:
+            - "3000:3000"
+        depends_on:
+            hospitalDB:
+                condition: service_healthy
+        restart: unless-stopped
+        networks:
+            - hospital-network
 
 volumes:
-  postgres_data:
-    driver: local
+    postgres_data:
+        driver: local
 
 networks:
-  hospital-network:
-    driver: bridge
+    hospital-network:
+        driver: bridge
