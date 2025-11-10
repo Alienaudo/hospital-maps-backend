@@ -1,5 +1,5 @@
 import { Type, type Static } from "typebox";
-import { BloodTypeEnum } from "./User.Signup.Schema.js";
+import { BloodTypeEnum } from "../types/BloodTypeEnum.js";
 
 export const BloodTypeSchema = Type.Object({
 
@@ -8,4 +8,11 @@ export const BloodTypeSchema = Type.Object({
 });
 
 export type BloodSchemaType = Static<typeof BloodTypeSchema>;
+
+export const BloodTFloundResponseSchema = Type.Object({
+
+    message: Type.String({ example: "Items encontrados" }),
+    bloodType: BloodTypeEnum
+
+});
 
