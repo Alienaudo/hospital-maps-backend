@@ -5,6 +5,8 @@ import fastify, { type FastifyError, type FastifyInstance, type FastifyReply, ty
 import { TypeBoxValidatorCompiler, type TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { UserRoutePlugin } from "../routes/User.Routes.js";
+import { fastifySwagger } from "@fastify/swagger";
+import { fastifySwaggerUi } from "@fastify/swagger-ui";
 import rateLimit from "@fastify/rate-limit";
 import cookie from "@fastify/cookie";
 import "dotenv/config";
@@ -59,6 +61,34 @@ export const buildApp = (
                 message: error.message
 
             });
+
+    });
+
+    app.register(fastifySwagger, {
+
+        openapi: {
+
+            info: {
+
+                version: "1.0.0",
+                title: "Documentation for hospital-maps-backend APIs",
+                description: "Documentation for the endpoints of the hospital-maps-backend APIs project.",
+
+            },
+
+        },
+
+    });
+
+    app.register(fastifySwaggerUi, {
+
+        routePrefix: "documentation",
+        uiConfig: {
+
+            docExpansion: "none",
+            deepLinking: false,
+
+        },
 
     });
 
