@@ -17,13 +17,14 @@ import { GetAllergiesService } from "../services/Allergies/GetAllergies.Service.
 import { AddAllergiesService } from "../services/Allergies/AddAllergies.Service.js";
 import { DeleteAllergieService } from "../services/Allergies/DeleteAllergies.Service.js";
 import { GetBloodTypeService } from "../services/User/GetBloodType.Service.js";
-import { logger } from "../logger.js";
 import { GetEmailService } from "../services/User/GetEmail.Service.js";
 import { GetPhoneService } from "../services/User/GetPhone.Service.js";
 import { UpdateEmailService } from "../services/User/UpdateEmail.Service.js";
 import { UpdateBloodTypeService } from "../services/User/UpdateBloodType.Service.js";
 import { UpdateNameService } from "../services/User/UpdateName.Service.js";
 import { UpdatePhoneService } from "../services/User/UpdatePhone.Service.js";
+import { logger } from "../logger.js";
+import { GetUserService } from "../services/User/GetUser.Service.js";
 
 export class UserController {
 
@@ -165,6 +166,18 @@ export class UserController {
 
     };
 
+    public getUser = async (
+
+        request: FastifyRequest,
+        reply: FastifyReply
+
+    ): Promise<void> => {
+
+        const getUserService: GetUserService = new GetUserService(this.prisma);
+        await getUserService.exec(request, reply);
+
+    };
+
     public getUserBloodType = async (
 
         request: FastifyRequest,
@@ -301,11 +314,7 @@ export class UserController {
 
         request: FastifyRequest<{
 
-            Body: {
-
-                newBloodType: BloodType,
-
-            };
+            Body: { newBloodType: BloodType };
 
         }>,
         reply: FastifyReply
