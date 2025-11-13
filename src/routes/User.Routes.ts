@@ -23,12 +23,13 @@ import { ItemNotFoundResponseSchema } from "../schemas/ItemNotFoundResponse.Sche
 import { ItemAddedResponseSchema } from "../schemas/ItemAddedResponse.Schema.js";
 import { MedicationFoundResponseSchema } from "../schemas/MedicationFoundResponse.Schema.js";
 import { EmergencyContactFoundResponseSchema } from "../schemas/EmergencyContactFoundResponse.Schema.js";
-import Type from "typebox";
 import { PhoneRegex } from "../types/PhoneRegex.js";
 import { DiseaseSchema } from "../schemas/Disease.Schema.js";
 import { AllergiesSchema } from "../schemas/Allergies.Schema.js";
 import { MedicationSchema } from "../schemas/Medication.Schema.js";
 import { EmergencyContactSchema } from "../schemas/EmergencyContact.Schema.js";
+import { UserFoundResponseSchema } from "../schemas/UserFoundResponse.Schema.js";
+import Type from "typebox";
 
 class UserRoutes {
 
@@ -80,8 +81,38 @@ class UserRoutes {
             },
 
         }, this.userController.existsUser);
-        //TODO: Implement get user method, in order to replace individual get methods
-        fastify.post("/signup", {
+
+        fastify.get("/", {
+
+            schema: {
+
+                tags: ["Users"],
+                summary: "Get user's informations",
+
+                response: {
+
+                    200: UserFoundResponseSchema,
+                    404: UserNotFoundResponseSchema,
+                    500: InternalServerErrorResponseSchema
+
+                },
+
+            },
+
+            config: {
+
+                rateLimit: {
+
+                    max: 50,
+                    timeWindow: "10 minute",
+
+                },
+
+            },
+
+        }, this.userController.getUser);
+
+        fastify.post("/", {
 
             schema: {
 
@@ -111,6 +142,35 @@ class UserRoutes {
             },
 
         }, this.userController.creatUser);
+
+        fastify.delete("/", {
+
+            schema: {
+
+                tags: ["Users"],
+                summary: "Delete user",
+
+                response: {
+
+                    204: NoContentResponseSchema,
+                    500: InternalServerErrorResponseSchema
+
+                },
+
+            },
+
+            config: {
+
+                rateLimit: {
+
+                    max: 50,
+                    timeWindow: "30 minute",
+
+                },
+
+            },
+
+        }, this.userController.deleteUser);
 
         fastify.get("/bloodType", {
 
