@@ -1,0 +1,26 @@
+services:
+    app:
+        build:
+            context: .
+            target: dev
+        environment:
+            - PORT=3000
+        volumes:
+            - .:/app
+            - /app/node_modules
+        ports:
+            - "3000:3000"
+        depends_on:
+            hospitalDB:
+                condition: service_healthy
+        restart: unless-stopped
+        networks:
+            - hospital-network
+
+volumes:
+    postgres_data:
+        driver: local
+
+networks:
+    hospital-network:
+        driver: bridge

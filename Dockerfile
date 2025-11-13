@@ -12,6 +12,23 @@ RUN --mount=type=cache,target=/pnpm/store \
     pnpm fetch --frozen-lockfile && \
     pnpm install --frozen-lockfile --prod --offline
 
+FROM base AS dev
+
+RUN corepack enable
+
+WORKDIR /app
+
+COPY pnpm-lock.yaml package.json .env ./prisma/schema.prisma ./
+
+RUN --mount=type=cache,target=/pnpm/store \
+    pnpm fetch --frozen-lockfile && \
+    pnpm install --frozen-lockfile && \
+    pnpm prisma generate
+
+EXPOSE ${PORT}
+
+CMD pnpm prisma migrate deploy && pnpm start:dev
+
 FROM base AS build
 
 RUN corepack enable
@@ -44,8 +61,6 @@ COPY --from=build --chown=nodeuser:nodejs /app/prisma /app/prisma
 COPY --from=build --chown=nodeuser:nodejs /app/firebase /app/firebase
 
 COPY --chown=nodeuser:nodejs pnpm-lock.yaml package.json .env ./
-
-RUN pnpm prisma generate
 
 EXPOSE ${PORT}
 

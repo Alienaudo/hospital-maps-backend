@@ -22,9 +22,12 @@ services:
             start_period: 10s
 
     app:
-        build: .
+        build:
+            context: .
+        environment:
+            - PORT=${PORT}
         ports:
-            - "3000:3000"
+            - "${PORT}:${PORT}"
         depends_on:
             hospitalDB:
                 condition: service_healthy
