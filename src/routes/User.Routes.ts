@@ -28,6 +28,7 @@ import { DiseaseSchema } from "../schemas/Disease.Schema.js";
 import { AllergiesSchema } from "../schemas/Allergies.Schema.js";
 import { MedicationSchema } from "../schemas/Medication.Schema.js";
 import { EmergencyContactSchema } from "../schemas/EmergencyContact.Schema.js";
+import { UserFoundResponseSchema } from "../schemas/UserFoundResponse.Schema.js";
 import Type from "typebox";
 
 class UserRoutes {
@@ -81,15 +82,28 @@ class UserRoutes {
 
         }, this.userController.existsUser);
 
-        //TODO: Implement get user method, in order to replace individual get methods
-
         fastify.get("/", {
+
+            schema: {
+
+                tags: ["Users"],
+                summary: "Get user's informations",
+
+                response: {
+
+                    200: UserFoundResponseSchema,
+                    404: UserNotFoundResponseSchema,
+                    500: InternalServerErrorResponseSchema
+
+                },
+
+            },
 
             config: {
 
                 rateLimit: {
 
-                    max: 5,
+                    max: 50,
                     timeWindow: "10 minute",
 
                 },
@@ -128,6 +142,35 @@ class UserRoutes {
             },
 
         }, this.userController.creatUser);
+
+        fastify.delete("/", {
+
+            schema: {
+
+                tags: ["Users"],
+                summary: "Delete user",
+
+                response: {
+
+                    204: NoContentResponseSchema,
+                    500: InternalServerErrorResponseSchema
+
+                },
+
+            },
+
+            config: {
+
+                rateLimit: {
+
+                    max: 50,
+                    timeWindow: "30 minute",
+
+                },
+
+            },
+
+        }, this.userController.deleteUser);
 
         fastify.get("/bloodType", {
 
