@@ -69,7 +69,7 @@ export class CreateUserService {
                         .status(StatusCodes.CONFLICT)
                         .send({
 
-                            message: "Erro ao criar o usuário",
+                            error: "Erro ao criar o usuário",
                             problem: problem
 
                         });
@@ -138,7 +138,7 @@ export class CreateUserService {
 
                         id: newUser.id,
                         name: newUser.name,
-                        emil: newUser.email,
+                        email: newUser.email,
                         phone: newUser.phone,
 
                     },
@@ -167,7 +167,7 @@ export class CreateUserService {
                 .status(StatusCodes.INTERNAL_SERVER_ERROR)
                 .send({
 
-                    message: "Ocorreu um erro ao processar a solicitação"
+                    error: "Ocorreu um erro ao processar a solicitação"
 
                 });
 

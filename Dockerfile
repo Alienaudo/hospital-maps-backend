@@ -6,7 +6,7 @@ RUN corepack enable
 
 WORKDIR /app
 
-COPY pnpm-lock.yaml package.json ./
+COPY  pnpm-lock.yaml package.json ./
 
 RUN --mount=type=cache,target=/pnpm/store \
     pnpm fetch --frozen-lockfile && \

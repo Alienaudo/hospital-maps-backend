@@ -2,12 +2,33 @@ import type { PrismaClient } from "@prisma/client/extension";
 import type { FastifyInstance, FastifyPluginAsync, RawServerDefault } from "fastify";
 import type { App } from "firebase-admin/app";
 import type { AddDiseasesRoute } from "../types/AddDiseasesRoute.Type.js";
-import { BloodTypeSchema, type BloodSchemaType } from "../schemas/BloodType.Schema.js";
+import { BloodTFloundResponseSchema, BloodTypeSchema, type BloodSchemaType } from "../schemas/BloodType.Schema.js";
 import { Auth, getAuth } from "firebase-admin/auth";
 import { UserController } from "../controller/User.Controller.js";
 import { VerifyToken } from "../middleware/Auth.Middleware.js";
-import { PhoneRegex, UserSignupSchema } from "../schemas/User.Signup.Schema.js";
+import { UserCreatedResponseSchema, UserSignupSchema } from "../schemas/User.Signup.Schema.js";
+import { UserExistsSchema, UserFoundSchemaResponse, UserNotFoundResponseSchema } from "../schemas/UserExists.Schema.js";
+import { InternalServerErrorResponseSchema } from "../schemas/InternalServerErro.Schema.js";
+import { EmailFoundResponseSchema } from "../schemas/EmailFoundResponse.Schema.js";
+import { PhoneFoundResponseSchema } from "../schemas/PhoneFoundResponse.Schema.js";
+import { NameUpdatedResponseSchema } from "../schemas/NameUpdatedResponse.Schema.js";
+import { EmailUpdatedResponseSchema } from "../schemas/EmailUpdatedResponse.Schema.js";
+import { PhoneUpdatedResponseSchema } from "../schemas/PhoneUpdatedResponse.Schema.js";
+import { BloodTUpdatedResponseSchema } from "../schemas/BloodTUpdatedResponse.Schema.js";
+import { DiseasesFoundResponseSchema } from "../schemas/DiseasesFoundResponse.Schema.js";
+import { ItemAlreadyExistsResponseSchema } from "../schemas/ItemAlreadyExistsResponse.Schema.js";
+import { NoContentResponseSchema } from "../schemas/NoContentResponse.Schema.js";
+import { AllergiesFoundResponseSchema } from "../schemas/AllergiesFoundResponse.Schema.js";
+import { ItemNotFoundResponseSchema } from "../schemas/ItemNotFoundResponse.Schema.js";
+import { ItemAddedResponseSchema } from "../schemas/ItemAddedResponse.Schema.js";
+import { MedicationFoundResponseSchema } from "../schemas/MedicationFoundResponse.Schema.js";
+import { EmergencyContactFoundResponseSchema } from "../schemas/EmergencyContactFoundResponse.Schema.js";
 import Type from "typebox";
+import { PhoneRegex } from "../types/PhoneRegex.js";
+import { DiseaseSchema } from "../schemas/Disease.Schema.js";
+import { AllergiesSchema } from "../schemas/Allergies.Schema.js";
+import { MedicationSchema } from "../schemas/Medication.Schema.js";
+import { EmergencyContactSchema } from "../schemas/EmergencyContact.Schema.js";
 
 class UserRoutes {
 
@@ -31,6 +52,22 @@ class UserRoutes {
 
         fastify.head("/exists/:uid", {
 
+            schema: {
+
+                tags: ["Users"],
+                summary: "Check if a user exists",
+                params: UserExistsSchema,
+
+                response: {
+
+                    200: UserFoundSchemaResponse,
+                    404: UserNotFoundResponseSchema,
+                    500: InternalServerErrorResponseSchema,
+
+                },
+
+            },
+
             config: {
 
                 rateLimit: {
@@ -42,28 +79,57 @@ class UserRoutes {
 
             },
 
-        }, this.userController.existsUser),
+        }, this.userController.existsUser);
+        //TODO: Implement get user method, in order to replace individual get methods
+        fastify.post("/signup", {
 
-            fastify.post("/signup", {
+            schema: {
 
-                schema: { body: UserSignupSchema },
+                tags: ["Users"],
+                summary: "Create a new user",
+                body: UserSignupSchema,
 
-                config: {
+                response: {
 
-                    rateLimit: {
-
-                        max: 5,
-                        timeWindow: "10 minute",
-
-                    },
+                    201: UserCreatedResponseSchema,
+                    409: ItemAlreadyExistsResponseSchema,
+                    500: InternalServerErrorResponseSchema,
 
                 },
 
-            }, this.userController.creatUser);
+            },
+
+            config: {
+
+                rateLimit: {
+
+                    max: 5,
+                    timeWindow: "10 minute",
+
+                },
+
+            },
+
+        }, this.userController.creatUser);
 
         fastify.get("/bloodType", {
 
             preHandler: this.verifyToken.verifyToken,
+
+            schema: {
+
+                tags: ["Users"],
+                summary: "Get user's blood type",
+
+                response: {
+
+                    200: BloodTFloundResponseSchema,
+                    404: UserNotFoundResponseSchema,
+                    500: InternalServerErrorResponseSchema
+
+                },
+
+            },
 
             config: {
 
@@ -79,6 +145,21 @@ class UserRoutes {
         }, this.userController.getUserBloodType);
 
         fastify.get("/email", {
+
+            schema: {
+
+                tags: ["Users"],
+                summary: "Get user's email",
+
+                response: {
+
+                    200: EmailFoundResponseSchema,
+                    404: UserNotFoundResponseSchema,
+                    500: InternalServerErrorResponseSchema
+
+                },
+
+            },
 
             preHandler: this.verifyToken.verifyToken,
 
@@ -98,6 +179,21 @@ class UserRoutes {
         fastify.get("/phone", {
 
             preHandler: this.verifyToken.verifyToken,
+
+            schema: {
+
+                tags: ["Users"],
+                summary: "Get user's phone number",
+
+                response: {
+
+                    200: PhoneFoundResponseSchema,
+                    404: UserNotFoundResponseSchema,
+                    500: InternalServerErrorResponseSchema
+
+                },
+
+            },
 
             config: {
 
@@ -122,7 +218,18 @@ class UserRoutes {
 
             schema: {
 
-                body: { newName: Type.String() },
+                tags: ["Users"],
+                summary: "Update user's name",
+
+                body: Type.Object({ newName: Type.String() }),
+
+                response: {
+
+                    200: NameUpdatedResponseSchema,
+                    404: UserNotFoundResponseSchema,
+                    500: InternalServerErrorResponseSchema
+
+                },
 
             },
 
@@ -149,9 +256,20 @@ class UserRoutes {
 
             schema: {
 
-                body: {
+                tags: ["Users"],
+                summary: "Update user's email",
+
+                body: Type.Object({
 
                     newEmail: Type.String({ format: "email" }),
+
+                }),
+
+                response: {
+
+                    200: EmailUpdatedResponseSchema,
+                    404: UserNotFoundResponseSchema,
+                    500: InternalServerErrorResponseSchema
 
                 },
 
@@ -180,9 +298,20 @@ class UserRoutes {
 
             schema: {
 
-                body: {
+                tags: ["Users"],
+                summary: "Update user's phone",
+
+                body: Type.Object({
 
                     newPhone: Type.String({ pattern: PhoneRegex }),
+
+                }),
+
+                response: {
+
+                    200: PhoneUpdatedResponseSchema,
+                    404: UserNotFoundResponseSchema,
+                    500: InternalServerErrorResponseSchema
 
                 },
 
@@ -205,7 +334,22 @@ class UserRoutes {
 
             preHandler: this.verifyToken.verifyToken,
 
-            schema: { body: BloodTypeSchema },
+            schema: {
+
+                tags: ["Users"],
+                summary: "Update user's blood type",
+
+                body: BloodTypeSchema,
+
+                response: {
+
+                    200: BloodTUpdatedResponseSchema,
+                    404: UserNotFoundResponseSchema,
+                    500: InternalServerErrorResponseSchema
+
+                },
+
+            },
 
             config: {
 
@@ -224,6 +368,21 @@ class UserRoutes {
 
             preHandler: this.verifyToken.verifyToken,
 
+            schema: {
+
+                tags: ["Diseases"],
+                summary: "Get user's diseases",
+
+                response: {
+
+                    200: DiseasesFoundResponseSchema,
+                    404: ItemNotFoundResponseSchema,
+                    500: InternalServerErrorResponseSchema
+
+                },
+
+            },
+
             config: {
 
                 rateLimit: {
@@ -237,21 +396,22 @@ class UserRoutes {
 
         }, this.userController.getUserDisease);
 
-        fastify.patch<AddDiseasesRoute>("/diseases", {
+        fastify.post<AddDiseasesRoute>("/diseases", {
 
             preHandler: this.verifyToken.verifyToken,
 
             schema: {
 
-                body: {
+                tags: ["Diseases"],
+                summary: "Add user's diseases",
 
-                    name: Type.String({
+                body: DiseaseSchema,
 
-                        maxLength: 50,
-                        pattern: /^[a-zA-ZÀ-ÿ0-9 ]*$/,
+                response: {
 
-                    }),
-                    isChronic: Type.Boolean(),
+                    200: ItemAddedResponseSchema,
+                    409: ItemAlreadyExistsResponseSchema,
+                    500: InternalServerErrorResponseSchema
 
                 },
 
@@ -280,7 +440,17 @@ class UserRoutes {
 
             schema: {
 
+                tags: ["Diseases"],
+                summary: "Delete user's diseases",
+
                 params: { diseaseId: Type.String() },
+
+                response: {
+
+                    204: NoContentResponseSchema,
+                    500: InternalServerErrorResponseSchema
+
+                },
 
             },
 
@@ -301,6 +471,21 @@ class UserRoutes {
 
             preHandler: this.verifyToken.verifyToken,
 
+            schema: {
+
+                tags: ["Allergies"],
+                summary: "Get user's allergies",
+
+                response: {
+
+                    200: AllergiesFoundResponseSchema,
+                    404: ItemNotFoundResponseSchema,
+                    500: InternalServerErrorResponseSchema
+
+                },
+
+            },
+
             config: {
 
                 rateLimit: {
@@ -314,7 +499,7 @@ class UserRoutes {
 
         }, this.userController.getUserAllergies);
 
-        fastify.patch<{
+        fastify.post<{
 
             Body: {
 
@@ -332,14 +517,16 @@ class UserRoutes {
 
             schema: {
 
-                body: {
+                tags: ["Allergies"],
+                summary: "Add user's allergies",
 
-                    description: Type.String({
+                body: AllergiesSchema,
 
-                        maxLength: 300,
-                        pattern: /^[a-zA-ZÀ-ÿ0-9 ]*$/,
+                response: {
 
-                    }),
+                    200: ItemAddedResponseSchema,
+                    409: ItemAlreadyExistsResponseSchema,
+                    500: InternalServerErrorResponseSchema
 
                 },
 
@@ -368,7 +555,17 @@ class UserRoutes {
 
             schema: {
 
+                tags: ["Allergies"],
+                summary: "Delete user's allergies",
+
                 params: { allergieId: Type.String() },
+
+                response: {
+
+                    204: NoContentResponseSchema,
+                    500: InternalServerErrorResponseSchema
+
+                },
 
             },
 
@@ -389,6 +586,21 @@ class UserRoutes {
 
             preHandler: this.verifyToken.verifyToken,
 
+            schema: {
+
+                tags: ["Medication"],
+                summary: "Get user's medication",
+
+                response: {
+
+                    200: MedicationFoundResponseSchema,
+                    404: ItemNotFoundResponseSchema,
+                    500: InternalServerErrorResponseSchema
+
+                },
+
+            },
+
             config: {
 
                 rateLimit: {
@@ -402,7 +614,7 @@ class UserRoutes {
 
         }, this.userController.getUserMedication);
 
-        fastify.patch<{
+        fastify.post<{
 
             Body: {
 
@@ -421,15 +633,16 @@ class UserRoutes {
 
             schema: {
 
-                body: {
+                tags: ["Medication"],
+                summary: "Add user's medication",
 
-                    name: Type.String({
+                body: MedicationSchema,
 
-                        maxLength: 50,
-                        pattern: /^[a-zA-ZÀ-ÿ0-9 ]*$/,
+                response: {
 
-                    }),
-                    isContinuousUse: Type.Boolean(),
+                    200: ItemAddedResponseSchema,
+                    409: ItemAlreadyExistsResponseSchema,
+                    500: InternalServerErrorResponseSchema
 
                 },
 
@@ -458,7 +671,17 @@ class UserRoutes {
 
             schema: {
 
+                tags: ["Medication"],
+                summary: "Delete user's medication",
+
                 params: { medicationId: Type.String() },
+
+                response: {
+
+                    204: NoContentResponseSchema,
+                    500: InternalServerErrorResponseSchema
+
+                },
 
             },
 
@@ -475,9 +698,24 @@ class UserRoutes {
 
         }, this.userController.deleteUserMedication);
 
-        fastify.get("/emergencyContact", {
+        fastify.get("/emergencyContacts", {
 
             preHandler: this.verifyToken.verifyToken,
+
+            schema: {
+
+                tags: ["EmergencyContacts"],
+                summary: "Get user's personal emergency contacts",
+
+                response: {
+
+                    200: EmergencyContactFoundResponseSchema,
+                    404: ItemNotFoundResponseSchema,
+                    500: InternalServerErrorResponseSchema
+
+                },
+
+            },
 
             config: {
 
@@ -492,7 +730,7 @@ class UserRoutes {
 
         }, this.userController.getUserEmergencyContacts);
 
-        fastify.patch<{
+        fastify.post<{
 
             Body: {
 
@@ -505,21 +743,22 @@ class UserRoutes {
 
             },
 
-        }>("/emergencyContact", {
+        }>("/emergencyContacts", {
 
             preHandler: this.verifyToken.verifyToken,
 
             schema: {
 
-                body: {
+                tags: ["EmergencyContacts"],
+                summary: "Add user's personal emergency contacts",
 
-                    name: Type.String({
+                body: EmergencyContactSchema,
 
-                        maxLength: 50,
-                        pattern: /^[a-zA-ZÀ-ÿ0-9 ]*$/,
+                response: {
 
-                    }),
-                    tel: Type.String({ pattern: PhoneRegex }),
+                    200: ItemAddedResponseSchema,
+                    409: ItemAlreadyExistsResponseSchema,
+                    500: InternalServerErrorResponseSchema
 
                 },
 
@@ -542,13 +781,23 @@ class UserRoutes {
 
             Params: { contactId: string };
 
-        }>("/emergencyContact/:contactId", {
+        }>("/emergencyContacts/:contactId", {
 
             preHandler: this.verifyToken.verifyToken,
 
             schema: {
 
+                tags: ["EmergencyContacts"],
+                summary: "Delete user's personal emergency contact",
+
                 params: { contactId: Type.String() },
+
+                response: {
+
+                    204: NoContentResponseSchema,
+                    500: InternalServerErrorResponseSchema
+
+                },
 
             },
 
