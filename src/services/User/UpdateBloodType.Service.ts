@@ -4,7 +4,7 @@ import type { FastifyReply } from "fastify/types/reply.js";
 import { StatusCodes } from "http-status-codes";
 import { logger } from "../../logger.js";
 
-export class UpdateBloodType {
+export class UpdateBloodTypeService {
 
     private readonly prisma: PrismaClient;
 
@@ -17,12 +17,9 @@ export class UpdateBloodType {
     public exec = async (
 
         request: FastifyRequest<{
-            Body: {
 
-                id: string,
-                bloodType: BloodType
+            Body: { newBloodType: BloodType },
 
-            }
         }>,
         reply: FastifyReply
 
@@ -30,27 +27,17 @@ export class UpdateBloodType {
 
         try {
 
-            const { id, bloodType } = request.body
+            const uid: string | undefined = request.userFirebase?.uid;
+            const { newBloodType } = request.body
 
-            const newBloodType = await this.prisma.user
+            if (!uid) throw Error("Auth Middleware not privided user's uid");
+
+            const result = await this.prisma.user
                 .update({
 
-                    where: {
-
-                        id: id
-
-                    },
-                    data: {
-
-                        bloodType: bloodType
-
-                    },
-                    select: {
-
-                        bloodType: true,
-                        updatedAt: true
-
-                    },
+                    where: { firebaseId: uid },
+                    data: { bloodType: newBloodType },
+                    select: { updatedAt: true },
 
                 });
 
@@ -58,28 +45,21 @@ export class UpdateBloodType {
                 .status(StatusCodes.OK)
                 .headers({
 
-                    "Content-Type": "application/json",
-                    "last-modified": `${newBloodType.updatedAt}`
+                    "last-modified": `${result.updatedAt}`,
 
                 })
                 .send({
 
                     message: "Tipo sanguineo atualizado com êxito",
-                    booldType: newBloodType.bloodType,
 
                 });
 
         } catch (error: unknown) {
 
-            logger.error(`Erro while updating blood type: ${JSON.stringify(error)}`);
+            logger.error(`Erro while updating blood type: ${error}`);
 
             return reply
                 .status(StatusCodes.INTERNAL_SERVER_ERROR)
-                .headers({
-
-                    "Content-Type": "application/json",
-
-                })
                 .send({
 
                     message: "Ocorreu um erro ao processar a solicitação"
@@ -91,3 +71,4 @@ export class UpdateBloodType {
     };
 
 };
+

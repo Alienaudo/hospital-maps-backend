@@ -5,8 +5,9 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-    provider = "prisma-client"
-    output   = "../src/generated"
+    provider      = "prisma-client"
+    output        = "../src/generated"
+    binaryTargets = ["native"]
 }
 
 datasource db {
@@ -133,7 +134,7 @@ model Medication {
 model PersonalEmergencyContacts {
     id        String   @id @default(cuid())
     name      String   @db.VarChar(50)
-    tel       String
+    tel       String   @unique
     userId    String?
     createdAt DateTime @default(now()) @map("created_at")
     updatedAt DateTime @updatedAt @map("updated_at")

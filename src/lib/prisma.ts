@@ -62,7 +62,7 @@ const initializePrisma = async (retries: number = 0): Promise<PrismaClient> => {
 
         };
 
-        throw new Error("Error instantiating PrismaClient");
+        throw new Error(`Error instantiating PrismaClient: ${error}`);
 
     };
 

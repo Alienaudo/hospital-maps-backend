@@ -1,4 +1,4 @@
-import { destination, type Logger, pino } from "pino";
+import { type Logger, pino } from "pino";
 import "dotenv/config";
 
 export const logger: Logger = pino({
@@ -18,9 +18,4 @@ export const logger: Logger = pino({
 
     },
 
-}, destination({
-
-    dest: "./logs",
-    sync: false
-
-}));
+});

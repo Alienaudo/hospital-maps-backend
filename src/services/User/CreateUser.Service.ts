@@ -45,11 +45,6 @@ export class CreateUserService {
 
                 return reply
                     .status(StatusCodes.BAD_REQUEST)
-                    .headers({
-
-                        "Content-Type": "application/json;",
-
-                    })
                     .send({
 
                         message: "Todos os campos obrigatórios devem ser preenchidos."
@@ -72,14 +67,9 @@ export class CreateUserService {
 
                     return reply
                         .status(StatusCodes.CONFLICT)
-                        .headers({
-
-                            "Content-Type": "application/json",
-
-                        })
                         .send({
 
-                            message: "Erro ao criar o usuário",
+                            error: "Erro ao criar o usuário",
                             problem: problem
 
                         });
@@ -141,11 +131,6 @@ export class CreateUserService {
 
             return reply
                 .status(StatusCodes.CREATED)
-                .headers({
-
-                    "Content-Type": "application/json; charset=utf-8",
-
-                })
                 .send({
 
                     message: "Usuário criado com êxito",
@@ -153,7 +138,7 @@ export class CreateUserService {
 
                         id: newUser.id,
                         name: newUser.name,
-                        emil: newUser.email,
+                        email: newUser.email,
                         phone: newUser.phone,
 
                     },
@@ -168,11 +153,6 @@ export class CreateUserService {
 
                 return reply
                     .status(StatusCodes.CONFLICT)
-                    .headers({
-
-                        "Content-Type": "application/json",
-
-                    })
                     .send({
 
                         error: `A restrição exclusiva falhou nos campos: ${error.meta.target}`
@@ -185,14 +165,9 @@ export class CreateUserService {
 
             return reply
                 .status(StatusCodes.INTERNAL_SERVER_ERROR)
-                .headers({
-
-                    "Content-Type": "application/json",
-
-                })
                 .send({
 
-                    message: "Ocorreu um erro ao processar a solicitação"
+                    error: "Ocorreu um erro ao processar a solicitação"
 
                 });
 

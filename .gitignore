@@ -2,12 +2,15 @@ node_modules
 # Keep environment variables out of version control
 .env
 *.log
+*.csv
 
 /dist
 
 /prisma/generated/prisma
 
-/prisma/generated/prisma
+/src/firebase/*
 
 firebase.json
+report.json
 
+.firebaserc
