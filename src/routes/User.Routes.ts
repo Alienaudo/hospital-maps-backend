@@ -84,6 +84,8 @@ class UserRoutes {
 
         fastify.get("/", {
 
+            preHandler: this.verifyToken.verifyToken,
+
             schema: {
 
                 tags: ["Users"],
@@ -144,6 +146,8 @@ class UserRoutes {
         }, this.userController.creatUser);
 
         fastify.delete("/", {
+
+            preHandler: this.verifyToken.verifyToken,
 
             schema: {
 
